@@ -1,6 +1,9 @@
 import pygame, sys
 from pygame.locals import *
 from colors import *
+from quadtree import *
+from gamecomponents import *
+from random import randint
 
 # init pygame, the display surface and set a windowhtitle
 pygame.init()
@@ -17,39 +20,52 @@ alphaSurface = DISPLAYSURF.convert_alpha
 fontObj = pygame.font.Font('freesansbold.ttf', 16)
 
 # init
-ballx = 50
-bally = 50
-#direction = 'right'
-speed = 5
+qt = Quadtree(0, 4, 1, BLACK, Rect((0,0), (1280,720)))
+qt.render = True
+player = Ball(50, 50, 20, RED, 5)
+
+balls = []
+for i in range(0, 30):
+  balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 30), YELLOW, 0))
+
+qt.set_objects(balls)
+qt.add_object(player)
 
 # main game loop
 while True:
   DISPLAYSURF.fill(BGCOLOR)
 
   # FPS
-  textSurfaceObj = fontObj.render('FPS: ' + str(int(fpsClock.get_fps())), True, BLACK, BGCOLOR)
-  textRectObj = textSurfaceObj.get_rect()
+  #textSurfaceObj = fontObj.render('FPS: ' + str(int(fpsClock.get_fps())), True, YELLOW, BGCOLOR)
+  #textRectObj = textSurfaceObj.get_rect()
   #textRectObj.top = 30
-  DISPLAYSURF.blit(textSurfaceObj, textRectObj)
+  #DISPLAYSURF.blit(textSurfaceObj, textRectObj
+
+  pygame.display.set_caption('PyBall - FPS: ' + str(int(fpsClock.get_fps())))
 
   # input handling
   pressed = pygame.key.get_pressed()
   if pressed[K_LEFT]:
-    ballx -= speed
+    player.posx -= player.speed
   if pressed[K_RIGHT]:
-    ballx += speed
+    player.posx += player.speed
   if pressed[K_UP]:
-    bally -= speed
+    player.posy -= player.speed
   if pressed[K_DOWN]:
-    bally += speed
+    player.posy += player.speed
 
   for event in pygame.event.get(): # tells us what events happened
     if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
       pygame.quit()
       sys.exit()
 
-  pygame.draw.circle(DISPLAYSURF, RED, (ballx, bally), 20, 0)
+  #qt.update(DISPLAYSURF)
+
+  pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
+  for ball in balls:
+    pygame.draw.circle(DISPLAYSURF, ball.color, (ball.posx, ball.posy), ball.radius, 0)
+
+
   pygame.display.update() # draw the display surface on the screen
 
   fpsClock.tick(FPS)
-
