@@ -1,11 +1,9 @@
-import pygame
+import pygame, copy
 
 class Quadtree (object):
   def __init__(self, level, maxlevel, maxobj, color, rect, render = False):
-    self.level = level
     self.quads = []
     self.objects = []
-
     self.level = level
     self.maxlevel = maxlevel
     self.maxobj = maxobj
@@ -22,10 +20,12 @@ class Quadtree (object):
     if len(self.objects) > self.maxobj and self.level < self.maxlevel:
       self.subdivide()
       for quad in self.quads:
-        quad.update(display)
+        if not quad.quads:
+          quad.update(display)
 
-      if self.render:
-        self.draw(display)
+    if self.render and self.quads:
+      self.draw(display)
+
 
 
   # Check for all collisions
@@ -40,10 +40,10 @@ class Quadtree (object):
   # Splits up the quad (and all objects)
   def subdivide(self):
     for rect in self.split_rect(self.rect):
-      self.quads.append(Quadtree(self.level + 1, self.maxlevel, self.maxobj, self.color, rect, True))
+      self.quads.append(Quadtree(self.level + 1, self.maxlevel, self.maxobj, self.color, rect, self.render))
 
-    for obj in self.objects:
-      for quad in self.quads:
+    for quad in self.quads:
+      for obj in self.objects:
           if quad.get_rect().colliderect(obj.get_rect()):
             quad.objects.append(obj)
 

@@ -20,16 +20,14 @@ alphaSurface = DISPLAYSURF.convert_alpha
 fontObj = pygame.font.Font('freesansbold.ttf', 16)
 
 # init
-qt = Quadtree(0, 4, 1, BLACK, Rect((0,0), (1280,720)))
-qt.render = True
+qt = Quadtree(0, 6, 1, BLACK, Rect((0,0), (1280,720)), True)
 player = Ball(50, 50, 20, RED, 5)
-
 balls = []
-for i in range(0, 30):
-  balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 30), YELLOW, 0))
-
+for i in range(0, 1000):
+  balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 20), YELLOW, 0))
 qt.set_objects(balls)
 qt.add_object(player)
+qtupdate = False
 
 # main game loop
 while True:
@@ -47,19 +45,26 @@ while True:
   pressed = pygame.key.get_pressed()
   if pressed[K_LEFT]:
     player.posx -= player.speed
+    qtupdate = True
   if pressed[K_RIGHT]:
     player.posx += player.speed
+    qtupdate = True
   if pressed[K_UP]:
     player.posy -= player.speed
+    qtupdate = True
   if pressed[K_DOWN]:
     player.posy += player.speed
+    qtupdate = True
 
   for event in pygame.event.get(): # tells us what events happened
     if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
       pygame.quit()
       sys.exit()
 
-  #qt.update(DISPLAYSURF)
+  if qtupdate:
+    qt.update(DISPLAYSURF)
+  qt.draw(DISPLAYSURF)
+  #qtupdate = False
 
   pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
   for ball in balls:
