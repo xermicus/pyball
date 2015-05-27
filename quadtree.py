@@ -1,7 +1,7 @@
 import pygame, copy
 
 class Quadtree (object):
-  def __init__(self, level, maxlevel, maxobj, color, rect, render = False):
+  def __init__(self, level, maxlevel, maxobj, color, rect, render = False, parent = None):
     self.quads = []
     self.objects = []
     self.level = level
@@ -10,6 +10,8 @@ class Quadtree (object):
     self.color = color
     self.rect = rect
     self.render = render
+    if not parent:
+      self.parent = parent
 
 
   # Update our Tree
@@ -26,6 +28,18 @@ class Quadtree (object):
     if self.render and self.quads:
       self.draw(display)
 
+  def get_quad(self):
+    pass
+
+  def insert_obj(self):
+    pass
+
+  def remove_obj(self):
+    pass
+
+  def move_obj(self, obj):
+    pass
+    # check first if an update is even necessary
 
 
   # Check for all collisions
@@ -41,12 +55,16 @@ class Quadtree (object):
   # Splits up the quad (and all objects)
   def subdivide(self):
     for rect in self.split_rect(self.rect):
-      self.quads.append(Quadtree(self.level + 1, self.maxlevel, self.maxobj, self.color, rect, self.render))
+      self.quads.append(Quadtree(self.level + 1, self.maxlevel, self.maxobj, self.color, rect, self.render, self))
 
     for quad in self.quads:
       for obj in self.objects:
           if self.get_rect().colliderect(obj.get_rect()):
             quad.objects.append(obj)
+
+
+  def merge(self):
+    pass
 
 
   # Splits up a rect

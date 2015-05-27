@@ -46,6 +46,7 @@ while True:
   if pressed[K_LEFT]:
     player.posx -= player.speed
     qtupdate = True
+    #qt.move_obj(player)
   if pressed[K_RIGHT]:
     player.posx += player.speed
     qtupdate = True
@@ -63,7 +64,7 @@ while True:
 
   if qtupdate:
     qt.update(DISPLAYSURF)
-    qtupdate = False
+    #qtupdate = False
 
   pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
   #pygame.draw.rect(DISPLAYSURF, RED, player.get_rect(), 2)
