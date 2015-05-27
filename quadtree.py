@@ -34,6 +34,7 @@ class Quadtree (object):
     for obj1 in self.objects:
       for obj2 in self.objects:
         pass
+
     return cols
 
 
@@ -44,7 +45,7 @@ class Quadtree (object):
 
     for quad in self.quads:
       for obj in self.objects:
-          if quad.get_rect().colliderect(obj.get_rect()):
+          if self.get_rect().colliderect(obj.get_rect()):
             quad.objects.append(obj)
 
 

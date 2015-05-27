@@ -20,10 +20,10 @@ alphaSurface = DISPLAYSURF.convert_alpha
 fontObj = pygame.font.Font('freesansbold.ttf', 16)
 
 # init
-qt = Quadtree(0, 6, 1, BLACK, Rect((0,0), (1280,720)), True)
+qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
 player = Ball(50, 50, 20, RED, 5)
 balls = []
-for i in range(0, 1000):
+for i in range(0, 100):
   balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 20), YELLOW, 0))
 qt.set_objects(balls)
 qt.add_object(player)
@@ -63,10 +63,10 @@ while True:
 
   if qtupdate:
     qt.update(DISPLAYSURF)
-  qt.draw(DISPLAYSURF)
-  #qtupdate = False
+    qtupdate = False
 
   pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
+  #pygame.draw.rect(DISPLAYSURF, RED, player.get_rect(), 2)
   for ball in balls:
     pygame.draw.circle(DISPLAYSURF, ball.color, (ball.posx, ball.posy), ball.radius, 0)
 
