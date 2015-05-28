@@ -10,8 +10,10 @@ class Quadtree (object):
     self.color = color
     self.rect = rect
     self.render = render
-    if not parent:
+    if parent:
       self.parent = parent
+    else:
+      self.parent = self
 
 
   # Update our Tree
@@ -25,17 +27,31 @@ class Quadtree (object):
         if not quad.quads:
           quad.update(display)
 
-    if self.render and self.quads:
+    if self.render and not self.quads:
       self.draw(display)
 
-  def get_quad(self):
-    pass
+
+  def get_quads(self, rect, qlist = None, init = True):
+    if init:
+      qlist = []
+
+    for quad in self.quads:
+        if rect.colliderect(quad.rect):
+          if not quad.quads:
+            qlist.append(quad)
+          quad.get_quads(rect, qlist, False)
+
+    return qlist
+
 
   def insert_obj(self):
     pass
 
+
   def remove_obj(self):
+    self.merge()
     pass
+
 
   def move_obj(self, obj):
     pass
@@ -95,4 +111,4 @@ class Quadtree (object):
 
   # Render the Quad
   def draw(self, display):
-    pygame.draw.rect(display, self.color, self.rect, 2)
+    pygame.draw.rect(display, self.color, self.rect, 1)

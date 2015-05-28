@@ -23,30 +23,23 @@ fontObj = pygame.font.Font('freesansbold.ttf', 16)
 qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
 player = Ball(50, 50, 20, RED, 5)
 balls = []
-for i in range(0, 100):
-  balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 20), YELLOW, 0))
+for i in range(0, 300):
+  balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 15), YELLOW, 0))
 qt.set_objects(balls)
 qt.add_object(player)
-qtupdate = False
 
 # main game loop
 while True:
   DISPLAYSURF.fill(BGCOLOR)
 
-  # FPS
-  #textSurfaceObj = fontObj.render('FPS: ' + str(int(fpsClock.get_fps())), True, YELLOW, BGCOLOR)
-  #textRectObj = textSurfaceObj.get_rect()
-  #textRectObj.top = 30
-  #DISPLAYSURF.blit(textSurfaceObj, textRectObj
-
+  # Let me know the current FPS-Rate
   pygame.display.set_caption('PyBall - FPS: ' + str(int(fpsClock.get_fps())))
 
-  # input handling
+  # Handle the Input
   pressed = pygame.key.get_pressed()
   if pressed[K_LEFT]:
     player.posx -= player.speed
     qtupdate = True
-    #qt.move_obj(player)
   if pressed[K_RIGHT]:
     player.posx += player.speed
     qtupdate = True
@@ -56,22 +49,20 @@ while True:
   if pressed[K_DOWN]:
     player.posy += player.speed
     qtupdate = True
-
-  for event in pygame.event.get(): # tells us what events happened
+  if pressed[K_SPACE]:
+    qt.update(DISPLAYSURF)
+    for quad in qt.get_quads(player.get_rect()):
+      pygame.draw.rect(DISPLAYSURF, GREEN, quad.rect, 1)
+  for event in pygame.event.get():
     if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
       pygame.quit()
       sys.exit()
 
-  if qtupdate:
-    qt.update(DISPLAYSURF)
-    #qtupdate = False
-
+  # Draw the Player and Balls
   pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
-  #pygame.draw.rect(DISPLAYSURF, RED, player.get_rect(), 2)
   for ball in balls:
     pygame.draw.circle(DISPLAYSURF, ball.color, (ball.posx, ball.posy), ball.radius, 0)
 
-
-  pygame.display.update() # draw the display surface on the screen
+  pygame.display.update()
 
   fpsClock.tick(FPS)
