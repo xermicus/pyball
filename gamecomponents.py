@@ -14,6 +14,7 @@ class Ball (object):
     self.radius = radius
     self.speed = speed
     self.color = color
+    self.collisions = []
 
   def get_rect(self):
     return pygame.Rect(self.posx - self.radius, self.posy - self.radius, self.radius * 2, self.radius * 2)

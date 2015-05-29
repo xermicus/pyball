@@ -44,8 +44,11 @@ class Quadtree (object):
     return qlist
 
 
-  def insert_obj(self):
-    pass
+  def insert_obj(self, obj):
+    if len(self.objects) > self.maxobj and self.level < self.maxlevel:
+      self.subdivide()
+    else:
+      self.objects.append(obj)
 
 
   def remove_obj(self):
@@ -59,13 +62,15 @@ class Quadtree (object):
 
 
   # Check for all collisions
-  def get_collisions(self):
-    cols = []
-    for obj1 in self.objects:
-      for obj2 in self.objects:
-        pass
+  def get_collisions(self, obj):
+    collisions = []
+    quads = self.get_quads(obj.get_rect())
+    for quad in quads:
+      for qobj in quad.objects:
+        if qobj.get_rect().colliderect(obj.get_rect()) and qobj != obj:
+          collisions.append(qobj)
 
-    return cols
+    return collisions
 
 
   # Splits up the quad (and all objects)
@@ -75,7 +80,7 @@ class Quadtree (object):
 
     for quad in self.quads:
       for obj in self.objects:
-          if self.get_rect().colliderect(obj.get_rect()):
+          if quad.get_rect().colliderect(obj.get_rect()):
             quad.objects.append(obj)
 
 

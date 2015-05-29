@@ -19,11 +19,11 @@ alphaSurface = DISPLAYSURF.convert_alpha
 # using fonts
 fontObj = pygame.font.Font('freesansbold.ttf', 16)
 
-# init
+# initi content
 qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
 player = Ball(50, 50, 20, RED, 5)
 balls = []
-for i in range(0, 300):
+for i in range(0, 100):
   balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 15), YELLOW, 0))
 qt.set_objects(balls)
 qt.add_object(player)
@@ -58,10 +58,18 @@ while True:
       pygame.quit()
       sys.exit()
 
+  # Collision
+  player.collisions = qt.get_collisions(player)
+  for colobj in player.collisions:
+    colobj.color = BLUE
+
   # Draw the Player and Balls
   pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
   for ball in balls:
     pygame.draw.circle(DISPLAYSURF, ball.color, (ball.posx, ball.posy), ball.radius, 0)
+
+  for colobj in player.collisions:
+    colobj.color = YELLOW
 
   pygame.display.update()
 
