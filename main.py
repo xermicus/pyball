@@ -25,8 +25,11 @@ player = Ball(50, 50, 20, RED, 5)
 balls = []
 for i in range(0, 100):
   balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 15), YELLOW, 0))
-qt.set_objects(balls)
-qt.add_object(player)
+  qt.insert_obj(balls[i])
+qt.insert_obj(player)
+#qt.set_objects(balls)
+#qt.add_object(player)
+
 
 # main game loop
 while True:
@@ -50,7 +53,7 @@ while True:
     player.posy += player.speed
     qtupdate = True
   if pressed[K_SPACE]:
-    qt.update(DISPLAYSURF)
+    #qt.update(DISPLAYSURF)
     for quad in qt.get_quads(player.get_rect()):
       pygame.draw.rect(DISPLAYSURF, GREEN, quad.rect, 1)
   for event in pygame.event.get():

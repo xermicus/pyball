@@ -16,6 +16,54 @@ class Quadtree (object):
       self.parent = self
 
 
+  # Get all quads for a given object
+  def get_quads(self, rect, qlist = None, init = True):
+    if init:
+      qlist = []
+
+    for quad in self.quads:
+        if rect.colliderect(quad.rect):
+          if not quad.quads:
+            qlist.append(quad)
+          quad.get_quads(rect, qlist, False)
+
+    if not qlist:
+      qlist.append(self)
+    return qlist
+
+
+  def insert_obj(self, obj):
+    quads = self.get_quads(obj.get_rect())
+    for quad in quads:
+      quad.objects.append(obj)
+      if len(quad.objects) > self.maxobj and quad.level < self.maxlevel:
+        quad.subdivide()
+
+
+  def remove_obj(self, obj):
+    if obj in self.objects:
+      self.objects.remove(obj)
+      for quad in self.quads:
+        quad.remove_obj(obj)
+      self.merge()
+
+
+  def move_obj(self, obj):
+    if obj in self.objects:
+      self.remove_obj(obj)
+      self.insert_obj(obj)
+    # check first if an update is even necessary
+
+
+  def merge(self):
+    if self.quads and len(self.objects) < self.maxobj:
+      for quad in self.quads:
+        for obj in quad.objects:
+          if not obj in self.objects:
+            self.objects.append(obj)
+      self.quads = []
+
+
   # Update our Tree
   def update(self, display):
     if self.level == 0:
@@ -29,36 +77,6 @@ class Quadtree (object):
 
     if self.render and not self.quads:
       self.draw(display)
-
-
-  def get_quads(self, rect, qlist = None, init = True):
-    if init:
-      qlist = []
-
-    for quad in self.quads:
-        if rect.colliderect(quad.rect):
-          if not quad.quads:
-            qlist.append(quad)
-          quad.get_quads(rect, qlist, False)
-
-    return qlist
-
-
-  def insert_obj(self, obj):
-    if len(self.objects) > self.maxobj and self.level < self.maxlevel:
-      self.subdivide()
-    else:
-      self.objects.append(obj)
-
-
-  def remove_obj(self):
-    self.merge()
-    pass
-
-
-  def move_obj(self, obj):
-    pass
-    # check first if an update is even necessary
 
 
   # Check for all collisions
@@ -82,10 +100,6 @@ class Quadtree (object):
       for obj in self.objects:
           if quad.get_rect().colliderect(obj.get_rect()):
             quad.objects.append(obj)
-
-
-  def merge(self):
-    pass
 
 
   # Splits up a rect
