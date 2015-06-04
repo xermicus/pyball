@@ -16,7 +16,6 @@ class Quadtree (object):
       self.parent = self
 
 
-  # Get all quads for a given object
   def get_quads(self, rect, qlist = None, init = True):
     if init:
       qlist = []
@@ -43,40 +42,25 @@ class Quadtree (object):
   def remove_obj(self, obj):
     if obj in self.objects:
       self.objects.remove(obj)
-      for quad in self.quads:
-        quad.remove_obj(obj)
-      self.merge()
-
-
-  def move_obj(self, obj):
-    if obj in self.objects:
-      self.remove_obj(obj)
-      self.insert_obj(obj)
-    # check first if an update is even necessary
+    for quad in self.quads:
+      quad.remove_obj(obj)
+    self.merge()
 
 
   def merge(self):
-    if self.quads and len(self.objects) < self.maxobj:
+    if self.count_objects() < self.maxobj:
       for quad in self.quads:
         for obj in quad.objects:
           if not obj in self.objects:
-            self.objects.append(obj)
+            self.insert_obj(obj)
       self.quads = []
 
 
-  # Update our Tree
-  def update(self, display):
-    if self.level == 0:
-      self.quads = []
-
-    if len(self.objects) > self.maxobj and self.level < self.maxlevel:
-      self.subdivide()
-      for quad in self.quads:
-        if not quad.quads:
-          quad.update(display)
-
-    if self.render and not self.quads:
-      self.draw(display)
+  def count_objects(self):
+    i = len(self.objects)
+    for quad in self.quads:
+      i += quad.count_objects()
+    return i
 
 
   # Check for all collisions
@@ -87,11 +71,9 @@ class Quadtree (object):
       for qobj in quad.objects:
         if qobj.get_rect().colliderect(obj.get_rect()) and qobj != obj:
           collisions.append(qobj)
-
     return collisions
 
 
-  # Splits up the quad (and all objects)
   def subdivide(self):
     for rect in self.split_rect(self.rect):
       self.quads.append(Quadtree(self.level + 1, self.maxlevel, self.maxobj, self.color, rect, self.render, self))
@@ -102,7 +84,6 @@ class Quadtree (object):
             quad.objects.append(obj)
 
 
-  # Splits up a rect
   def split_rect(self, rect):
     w=rect.width/2.0
     h=rect.height/2.0
@@ -113,21 +94,10 @@ class Quadtree (object):
     rl.append(pygame.Rect(rect.left+w, rect.top+h, w, h))
     return rl
 
-  # Set new Objects
-  def set_objects(self, objects):
-    self.objects = objects
 
-
-  # Add an Object
-  def add_object(self, obj):
-    self.objects.append(obj)
-
-
-  # Get Rectangle
   def get_rect(self):
     return self.rect
 
 
-  # Render the Quad
   def draw(self, display):
     pygame.draw.rect(display, self.color, self.rect, 1)

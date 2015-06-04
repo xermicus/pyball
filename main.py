@@ -20,15 +20,10 @@ alphaSurface = DISPLAYSURF.convert_alpha
 fontObj = pygame.font.Font('freesansbold.ttf', 16)
 
 # initi content
-qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
 player = Ball(50, 50, 20, RED, 5)
-balls = []
-for i in range(0, 100):
-  balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 15), YELLOW, 0))
-  qt.insert_obj(balls[i])
+qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
 qt.insert_obj(player)
-#qt.set_objects(balls)
-#qt.add_object(player)
+balls = []
 
 
 # main game loop
@@ -53,9 +48,16 @@ while True:
     player.posy += player.speed
     qtupdate = True
   if pressed[K_SPACE]:
-    #qt.update(DISPLAYSURF)
     for quad in qt.get_quads(player.get_rect()):
       pygame.draw.rect(DISPLAYSURF, GREEN, quad.rect, 1)
+  if pressed[K_r]:
+    if balls:
+      i = randint(0, len(balls) - 1)
+      qt.remove_obj(balls[i])
+      balls.remove(balls[i])
+  if pressed[K_a]:
+    balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 15), YELLOW, 0))
+    qt.insert_obj(balls[len(balls) - 1])
   for event in pygame.event.get():
     if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
       pygame.quit()
