@@ -43,7 +43,7 @@ class Quadtree (object):
   def remove_obj(self, obj):
     if obj in self.objects:
       self.objects.remove(obj)
-      self.merge()
+      self.parent.merge()
     for quad in self.quads:
       quad.remove_obj(obj)
 
@@ -80,9 +80,9 @@ class Quadtree (object):
 
     for quad in self.quads:
       for obj in self.objects:
-          if quad.get_rect().colliderect(obj.get_rect()):
-            quad.objects.append(obj)
-    #self.objects=[]
+        if quad.get_rect().colliderect(obj.get_rect()):
+          quad.objects.append(obj)
+        #self.objects.remove(obj)
 
 
   def split_rect(self, rect):
@@ -100,12 +100,12 @@ class Quadtree (object):
     return self.rect
 
 
-  def draw(self, display, fontObj):
+  def draw(self, display, fontObj = []):
     for quad in self.quads:
       quad.draw(display, fontObj)
-
-    textSurfaceObj = fontObj.render(str(self.count_objects()), True, GREEN, NAVYBLUE)
-    textRectObj = textSurfaceObj.get_rect()
-    textRectObj.center = (self.get_rect().left + 10, self.get_rect().top + 10 * (self.level if self.level > 0 else self.maxobj + 1))
-    pygame.draw.rect(display, self.color, self.rect, 1)
-    display.blit(textSurfaceObj, textRectObj)
+    if fontObj:
+      textSurfaceObj = fontObj.render(str(self.count_objects()), True, GREEN, NAVYBLUE)
+      textRectObj = textSurfaceObj.get_rect()
+      textRectObj.center = (self.get_rect().left + 10, self.get_rect().top + 10 * (self.level if self.level > 0 else self.maxobj + 1))
+      pygame.draw.rect(display, self.color, self.rect, 1)
+      display.blit(textSurfaceObj, textRectObj)
