@@ -17,7 +17,7 @@ pygame.display.set_caption('PyBall')
 alphaSurface = DISPLAYSURF.convert_alpha
 
 # using fonts
-fontObj = pygame.font.Font('freesansbold.ttf', 16)
+fontObj = pygame.font.Font('freesansbold.ttf', 10)
 
 # initi content
 player = Ball(50, 50, 20, RED, 5)
@@ -48,6 +48,7 @@ while True:
     player.posy += player.speed
     qtupdate = True
   if pressed[K_SPACE]:
+    qt.draw(DISPLAYSURF, fontObj)
     for quad in qt.get_quads(player.get_rect()):
       pygame.draw.rect(DISPLAYSURF, GREEN, quad.rect, 1)
   if pressed[K_r]:
@@ -75,6 +76,7 @@ while True:
 
   for colobj in player.collisions:
     colobj.color = YELLOW
+
 
   pygame.display.update()
 
