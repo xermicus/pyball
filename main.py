@@ -30,12 +30,6 @@ balls = []
 while True:
   DISPLAYSURF.fill(BGCOLOR)
 
-
-  # Draw the Player and Balls
-  pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
-  for ball in balls:
-    pygame.draw.circle(DISPLAYSURF, ball.color, (ball.posx, ball.posy), ball.radius, 0)
-
   # Let me know the current FPS-Rate
   pygame.display.set_caption('PyBall - FPS: ' + str(int(fpsClock.get_fps())))
 
@@ -75,6 +69,10 @@ while True:
   for colobj in player.collisions:
     colobj.color = BLUE
 
+  # Draw the Player and Balls
+  pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
+  for ball in balls:
+    pygame.draw.circle(DISPLAYSURF, ball.color, (ball.posx, ball.posy), ball.radius, 0)
 
   for colobj in player.collisions:
     colobj.color = YELLOW

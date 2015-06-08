@@ -58,7 +58,7 @@ class Quadtree (object):
 
 
   def count_objects(self):
-    i = len(self.objects)
+    i = len(self.objects) if not self.quads else 0
     for quad in self.quads:
       i += quad.count_objects()
     return i
@@ -103,8 +103,6 @@ class Quadtree (object):
   def draw(self, display, fontObj = []):
     for quad in self.quads:
       quad.draw(display, fontObj)
-      for obj in quad.objects:
-        pygame.draw.circle(display, WHITE, (obj.posx, obj.posy), obj.radius, 0)
 
     if fontObj:
       textSurfaceObj = fontObj.render(str(self.count_objects()), True, GREEN, NAVYBLUE)
