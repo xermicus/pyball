@@ -11,10 +11,7 @@ class Quadtree (object):
     self.color = color
     self.rect = rect
     self.render = render
-    if parent:
-      self.parent = parent
-    else:
-      self.parent = self
+    self.parent = parent if parent else self
 
 
   def get_quads(self, rect, qlist = None, init = True):
@@ -101,12 +98,13 @@ class Quadtree (object):
 
 
   def draw(self, display, fontObj = []):
-    for quad in self.quads:
-      quad.draw(display, fontObj)
+    pygame.draw.rect(display, self.color, self.rect, 1)
 
     if fontObj:
       textSurfaceObj = fontObj.render(str(self.count_objects()), True, GREEN, NAVYBLUE)
       textRectObj = textSurfaceObj.get_rect()
       textRectObj.center = (self.get_rect().left + 10, self.get_rect().top + 10 * (self.level if self.level > 0 else self.maxobj + 1))
-      pygame.draw.rect(display, self.color, self.rect, 1)
       display.blit(textSurfaceObj, textRectObj)
+
+    for quad in self.quads:
+      quad.draw(display, fontObj)

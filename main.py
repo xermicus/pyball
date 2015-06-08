@@ -36,17 +36,21 @@ while True:
   # Handle the Input
   pressed = pygame.key.get_pressed()
   if pressed[K_LEFT]:
+    qt.remove_obj(player)
     player.posx -= player.speed
-    qtupdate = True
+    qt.insert_obj(player)
   if pressed[K_RIGHT]:
+    qt.remove_obj(player)
     player.posx += player.speed
-    qtupdate = True
+    qt.insert_obj(player)
   if pressed[K_UP]:
+    qt.remove_obj(player)
     player.posy -= player.speed
-    qtupdate = True
+    qt.insert_obj(player)
   if pressed[K_DOWN]:
+    qt.remove_obj(player)
     player.posy += player.speed
-    qtupdate = True
+    qt.insert_obj(player)
   if pressed[K_SPACE]:
     qt.draw(DISPLAYSURF, fontObj)
     for quad in qt.get_quads(player.get_rect()):
