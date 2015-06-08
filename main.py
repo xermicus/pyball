@@ -30,6 +30,12 @@ balls = []
 while True:
   DISPLAYSURF.fill(BGCOLOR)
 
+
+  # Draw the Player and Balls
+  pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
+  for ball in balls:
+    pygame.draw.circle(DISPLAYSURF, ball.color, (ball.posx, ball.posy), ball.radius, 0)
+
   # Let me know the current FPS-Rate
   pygame.display.set_caption('PyBall - FPS: ' + str(int(fpsClock.get_fps())))
 
@@ -53,12 +59,12 @@ while True:
       pygame.draw.rect(DISPLAYSURF, GREEN, quad.rect, 1)
   if pressed[K_r]:
     if balls:
-      i = randint(0, len(balls) - 1)
-      qt.remove_obj(balls[i])
-      balls.remove(balls[i])
+      qt.remove_obj(balls[len(balls) -1])
+      balls.remove(balls[len(balls) -1])
   if pressed[K_a]:
-    balls.append(Ball(randint(20, 1260), randint(20, 700), randint(5, 15), YELLOW, 0))
-    qt.insert_obj(balls[len(balls) - 1])
+    ball = Ball(randint(20, 1260), randint(20, 700), randint(5, 15), YELLOW, 0)
+    balls.append(ball)
+    qt.insert_obj(ball)
   for event in pygame.event.get():
     if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
       pygame.quit()
@@ -69,10 +75,6 @@ while True:
   for colobj in player.collisions:
     colobj.color = BLUE
 
-  # Draw the Player and Balls
-  pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
-  for ball in balls:
-    pygame.draw.circle(DISPLAYSURF, ball.color, (ball.posx, ball.posy), ball.radius, 0)
 
   for colobj in player.collisions:
     colobj.color = YELLOW
