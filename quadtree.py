@@ -103,6 +103,9 @@ class Quadtree (object):
   def draw(self, display, fontObj = []):
     for quad in self.quads:
       quad.draw(display, fontObj)
+      for obj in quad.objects:
+        pygame.draw.circle(display, WHITE, (obj.posx, obj.posy), obj.radius, 0)
+
     if fontObj:
       textSurfaceObj = fontObj.render(str(self.count_objects()), True, GREEN, NAVYBLUE)
       textRectObj = textSurfaceObj.get_rect()
