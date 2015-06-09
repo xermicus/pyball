@@ -1,5 +1,11 @@
 import pygame
 from colors import *
+from pygame.math import *
+
+RIGHT = Vector2(1, 0)
+LEFT = Vector2(-1, 0)
+UP = Vector2(0, -1)
+DOWN = Vector2(0, 1)
 
 class Drawable_gamecomponent (object):
   def __init__ (self, posx, posy):
@@ -9,12 +15,23 @@ class Drawable_gamecomponent (object):
 
 class Ball (object):
   def __init__ (self, posx, posy, radius, color, speed):
-    self.posx = posx
-    self.posy = posy
+    self.position = Vector2(posx, posy)
     self.radius = radius
     self.speed = speed
     self.color = color
     self.collisions = []
+    self.direction = Vector2(0, 0)
 
   def get_rect(self):
-    return pygame.Rect(self.posx - self.radius, self.posy - self.radius, self.radius * 2, self.radius * 2)
+    return pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, self.radius * 2, self.radius * 2)
+
+  def move(self, direction = Vector2(0, 0), quadtree = []):
+    if quadtree:
+      quadtree.remove_obj(self)
+      self.position += direction * self.speed
+      quadtree.insert_obj(self)
+    else:
+      self.position += direction * self.speed
+
+  def get_postuple(self):
+    return (int(self.position.x), int(self.position.y))

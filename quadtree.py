@@ -79,7 +79,6 @@ class Quadtree (object):
       for obj in self.objects:
         if quad.get_rect().colliderect(obj.get_rect()):
           quad.objects.append(obj)
-        #self.objects.remove(obj)
 
 
   def split_rect(self, rect):

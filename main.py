@@ -4,6 +4,7 @@ from colors import *
 from quadtree import *
 from gamecomponents import *
 from random import randint
+from pygame.math import *
 
 # init pygame, the display surface and set a windowhtitle
 pygame.init()
@@ -36,21 +37,13 @@ while True:
   # Handle the Input
   pressed = pygame.key.get_pressed()
   if pressed[K_LEFT]:
-    qt.remove_obj(player)
-    player.posx -= player.speed
-    qt.insert_obj(player)
+    player.move(LEFT, qt)
   if pressed[K_RIGHT]:
-    qt.remove_obj(player)
-    player.posx += player.speed
-    qt.insert_obj(player)
+    player.move(RIGHT, qt)
   if pressed[K_UP]:
-    qt.remove_obj(player)
-    player.posy -= player.speed
-    qt.insert_obj(player)
+    player.move(UP, qt)
   if pressed[K_DOWN]:
-    qt.remove_obj(player)
-    player.posy += player.speed
-    qt.insert_obj(player)
+    player.move(DOWN, qt)
   if pressed[K_SPACE]:
     qt.draw(DISPLAYSURF, fontObj)
     for quad in qt.get_quads(player.get_rect()):
@@ -68,15 +61,16 @@ while True:
       pygame.quit()
       sys.exit()
 
+
   # Collision
   player.collisions = qt.get_collisions(player)
   for colobj in player.collisions:
     colobj.color = BLUE
 
   # Draw the Player and Balls
-  pygame.draw.circle(DISPLAYSURF, player.color, (player.posx, player.posy), player.radius, 0)
+  pygame.draw.circle(DISPLAYSURF, player.color, player.get_postuple(), player.radius, 0)
   for ball in balls:
-    pygame.draw.circle(DISPLAYSURF, ball.color, (ball.posx, ball.posy), ball.radius, 0)
+    pygame.draw.circle(DISPLAYSURF, ball.color, ball.get_postuple(), ball.radius, 0)
 
   for colobj in player.collisions:
     colobj.color = YELLOW
