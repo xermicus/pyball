@@ -67,6 +67,7 @@ while True:
   for colobj in player.collisions:
     colobj.color = BLUE
 
+
   # Draw the Player and Balls
   pygame.draw.circle(DISPLAYSURF, player.color, player.get_postuple(), player.radius, 0)
   for ball in balls:

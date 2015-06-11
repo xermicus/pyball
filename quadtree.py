@@ -54,11 +54,13 @@ class Quadtree (object):
       self.quads = []
 
 
-  def count_objects(self):
-    i = len(self.objects) if not self.quads else 0
+  def count_objects(self, init = True):
+    objlist = self.objects if not self.quads else []
     for quad in self.quads:
-      i += quad.count_objects()
-    return i
+      for obj in quad.count_objects(False):
+        if not obj in objlist:
+          objlist.append(obj)
+    return len(objlist) if init else objlist
 
 
   def get_collisions(self, obj):
