@@ -21,6 +21,7 @@ class Ball (object):
     self.color = color
     self.collisions = []
     self.direction = Vector2(0, 0)
+    self.alive = True
 
   def get_rect(self):
     return pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, self.radius * 2, self.radius * 2)
@@ -35,3 +36,5 @@ class Ball (object):
 
   def get_postuple(self):
     return (int(self.position.x), int(self.position.y))
+
+  # issues 831

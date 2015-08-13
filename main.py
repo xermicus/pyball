@@ -1,3 +1,10 @@
+# TODO
+# - Map
+# - Physics
+# - Menu
+# - 2D Models
+# - Shots
+
 import pygame, sys
 from pygame.locals import *
 from colors import *
@@ -8,7 +15,7 @@ from pygame.math import *
 
 # init pygame, the display surface and set a windowhtitle
 pygame.init()
-FPS = 60 # frames per second setting
+FPS = 60 # frames per second  setting
 fpsClock = pygame.time.Clock()
 
 DISPLAYSURF = pygame.display.set_mode((1280, 720))
@@ -21,7 +28,7 @@ alphaSurface = DISPLAYSURF.convert_alpha
 fontObj = pygame.font.Font('freesansbold.ttf', 10)
 
 # initi content
-player = Ball(50, 50, 20, RED, 5)
+player = Ball(50, 50, 15, GREEN, 5)
 qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
 qt.insert_obj(player)
 balls = []
@@ -53,25 +60,32 @@ while True:
       qt.remove_obj(balls[len(balls) -1])
       balls.remove(balls[len(balls) -1])
   if pressed[K_a]:
-    ball = Ball(randint(20, 1260), randint(20, 700), randint(5, 15), YELLOW, 0)
+    ball = Ball(randint(20, 1260), randint(20, 700), randint(player.radius - 14, player.radius + 10), YELLOW, 0)
     balls.append(ball)
     qt.insert_obj(ball)
   for event in pygame.event.get():
     if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
       pygame.quit()
-      sys.exit()
+      #sys.exit()
 
 
   # Collision
   player.collisions = qt.get_collisions(player)
   for colobj in player.collisions:
-    colobj.color = BLUE
-
+    if player.radius > colobj.radius:
+      player.radius += (int)((10 * colobj.radius) / 100)
+      colobj.alive = False
+      if colobj in balls:
+        qt.remove_obj(colobj)
+        balls.remove(colobj)
+    else:
+      player.color = RED
 
   # Draw the Player and Balls
   pygame.draw.circle(DISPLAYSURF, player.color, player.get_postuple(), player.radius, 0)
   for ball in balls:
-    pygame.draw.circle(DISPLAYSURF, ball.color, ball.get_postuple(), ball.radius, 0)
+    if ball.alive:
+      pygame.draw.circle(DISPLAYSURF, ball.color, ball.get_postuple(), ball.radius, 0)
 
   for colobj in player.collisions:
     colobj.color = YELLOW
