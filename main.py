@@ -29,12 +29,12 @@ alphaSurface = DISPLAYSURF.convert_alpha
 # using fonts
 fontObj = pygame.font.Font('freesansbold.ttf', 10)
 
-# Screenmanager + Inital Menu-Screen
+# Screenmanager + Inital Menu-Scireen
 manager = Screenmanager()
-gamescreen = Gamescreen(manager, "game")
+gamescreen = Gamescreen(manager)
 manager.add_screen(gamescreen)
 #manager.blend_in(gamescreen)
-menuscreen = Menuscreen(manager, "menu")
+menuscreen = Menuscreen(manager)
 manager.add_screen(menuscreen)
 manager.blend_in(menuscreen)
 
