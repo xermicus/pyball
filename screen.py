@@ -10,11 +10,7 @@ from pygame.math import *
 class Screenmanager (object):
   screens = []
 
-  def __init__(self):
-    pass
-
-
-  def init(self, screens = []):
+  def __init__(self, screens = []):
     self.screens = screens
 
 
@@ -52,11 +48,18 @@ class Screenmanager (object):
 class Screen (object):
   visible = False
   hasinput = False
+  label = ""
   manager = Screenmanager()
 
 
-  def __init__(self, manager):
+  def __init__(self, manager, label):
     self.manager = manager
+    self.label = label
+
+
+  def destroy(self):
+    pass
+
 
   def update(self):
     pass
@@ -67,29 +70,63 @@ class Screen (object):
 
 
 class Menuscreen (Screen):
-  def __init__(self, manager):
-    pass
+  b_game = Button("Play", (1280/2, 720/2 - 50))
+  b_quit = Button("Quit", (1280/2, 720/2 + 50))
+  buttons = []
+  pygame.font.init()
+  font_small = pygame.font.Font('freesansbold.ttf', 50)
+  font_big = pygame.font.Font('freesansbold.ttf', 80)
 
-
-  def init(self):
-    pass
+  def __init__(self, manager, label):
+    self.buttons.append(self.b_game)
+    self.buttons.append(self.b_quit)
+    self.buttons[0].focus = True
 
 
   def update(self):
-    pass
+    for button in self.buttons:
+      button.update()
+
+    #pressed = pygame.key.get_pressed()
+    for event in pygame.event.get():
+      if (event.type == KEYUP and event.key == K_UP):
+        for i in range(0, len(self.buttons)):
+          if self.buttons[i].focus and i > 0:
+            self.buttons[i].focus = False
+            self.buttons[i - 1].focus = True
+            break
+      if (event.type == KEYUP and event.key == K_DOWN):
+        for i in range(0, len(self.buttons)):
+          if self.buttons[i].focus and i < len(self.buttons) - 1:
+            self.buttons[i].focus = False
+            self.buttons[i + 1].focus = True
+            break
+      if (event.type == KEYUP and event.key == K_SPACE):
+        if self.b_game.focus:
+          self.manager.blend_out(self)
+          for screen in self.manager.screens:
+            if screen.label == "game":
+              self.manager.blend_in(screen)
+        if self.b_quit.focus:
+          pygame.quit()
+          sys.exit()
+      if (event.type == KEYUP and event.key == K_ESCAPE):
+        pygame.quit()
+        sys.exit()
+    #if pressed[K_KP_ENTER]:
+    #  self.manager.blend_out(self)
 
 
   def draw(self, display, fontObj = []):
-    pass
+    for button in self.buttons:
+      if button.focus:
+        button.draw(display, self.font_big)
+      else:
+        button.draw(display, self.font_small)
 
 
 class Gamescreen (Screen):
-  def __init__(self, manager):
-    pass
-
-
-  def init(self):
-    # init content
+  def __init__(self, manager, label):
     self.player = Ball(50, 50, 15, GREEN, 5)
     self.qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
     self.qt.insert_obj(self.player)
@@ -120,6 +157,9 @@ class Gamescreen (Screen):
       ball = Ball(randint(20, 1260), randint(20, 700), randint(self.player.radius - 14, self.player.radius + 10), YELLOW, 0)
       self.balls.append(ball)
       self.qt.insert_obj(ball)
+    for event in pygame.event.get():
+      if (event.type == KEYUP and event.key == K_ESCAPE):
+        pygame.quit()
 
 
     # Collision

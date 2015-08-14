@@ -5,6 +5,7 @@
 # - 2D Models
 # - Shots
 
+
 import pygame, sys
 from pygame.locals import *
 from colors import *
@@ -30,12 +31,10 @@ fontObj = pygame.font.Font('freesansbold.ttf', 10)
 
 # Screenmanager + Inital Menu-Screen
 manager = Screenmanager()
-gamescreen = Gamescreen(manager)
-gamescreen.init()
+gamescreen = Gamescreen(manager, "game")
 manager.add_screen(gamescreen)
 #manager.blend_in(gamescreen)
-menuscreen = Menuscreen(manager)
-menuscreen.init()
+menuscreen = Menuscreen(manager, "menu")
 manager.add_screen(menuscreen)
 manager.blend_in(menuscreen)
 
@@ -55,7 +54,6 @@ while True:
 
 
   # Exit Game on ESC
-  for event in pygame.event.get():
-    if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
-      pygame.quit()
-      sys.exit()
+  # Moved to Menuscreen
+  #for event in pygame.event.get():
+

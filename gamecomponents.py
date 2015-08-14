@@ -38,3 +38,26 @@ class Ball (object):
     return (int(self.position.x), int(self.position.y))
 
   # issues 831
+
+class Button (Drawable_gamecomponent):
+  #pressed = False
+  focus = False
+  label = ""
+  position = (0, 0)
+
+  def __init__(self, label, position):
+    self.label = label
+    self.position = position
+
+  def update(self):
+    #check for input?
+    pass
+
+  def draw(self, display, fontObj = []):
+    if fontObj:
+      textObj = fontObj.render(self.label, True, BLACK, BGCOLOR)
+      textObjRect = textObj.get_rect()
+      textObjRect.center = self.position
+      display.blit(textObj, textObjRect)
+
+
