@@ -5,6 +5,7 @@ from quadtree import *
 from gamecomponents import *
 from random import randint
 from pygame.math import *
+import pickle
 
 
 class Screenmanager (object):
@@ -26,10 +27,10 @@ class Screenmanager (object):
     if self.screens[0].visible:
       self.screens[0] = Gamescreen(self)
     if self.screens[1].visible:
-      self.screens[1].visible = False
-      self.screens[1].hasinput = False
+      self.screens[1] = Menuscreen(self)
     if self.screens[2].visible:
       self.screens[2] = Levelscreen(self)
+      self.screens[0] = Gamescreen(self)
 
     newscreen.visible = True
     newscreen.hasinput = True
@@ -141,6 +142,8 @@ class Menuscreen (Screen):
 
 class Gamescreen (Screen):
   bg_img = pygame.image.load('bg_game.png')
+  level = []
+
 
   def __init__(self, manager):
     self.player = Ball(50, 50, 15, GREEN, 5)
@@ -148,6 +151,8 @@ class Gamescreen (Screen):
     self.qt.insert_obj(self.player)
     self.balls = []
     self.drawqt = False
+    with open("lvl.txt", 'rb') as f:
+      self.level = pickle.load(f)
 
   def update(self):
     if not self.hasinput:
@@ -199,6 +204,9 @@ class Gamescreen (Screen):
 
     display.blit(self.bg_img,(-100,-50))
 
+    for block in self.level:
+      pygame.draw.rect(display, DARKGREY, block)
+
     if self.drawqt:
       self.qt.draw(display, fontObj)
       for quad in self.qt.get_quads(self.player.get_rect()):
@@ -232,6 +240,7 @@ class Levelscreen (Screen):
     self.buttons.append(self.b_safe)
     self.buttons.append(self.b_quit)
     self.buttons[0].focus = True
+    self.blocks = []
 
 
   def update(self):
@@ -254,7 +263,8 @@ class Levelscreen (Screen):
             break
       if (event.type == KEYUP and event.key == K_SPACE):
         if self.b_safe.focus:
-          pass
+          with open("lvl.txt", 'wb') as f:
+            pickle.dump(self.blocks, f)
         if self.b_quit.focus:
           self.manager.blend_in(self.manager.screens[1])
       if (event.type == KEYUP and event.key == K_ESCAPE):
