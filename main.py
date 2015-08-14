@@ -33,6 +33,11 @@ manager = Screenmanager()
 gamescreen = Gamescreen(manager)
 gamescreen.init()
 manager.add_screen(gamescreen)
+#manager.blend_in(gamescreen)
+menuscreen = Menuscreen(manager)
+menuscreen.init()
+manager.add_screen(menuscreen)
+manager.blend_in(menuscreen)
 
 
 # main game loop
@@ -46,6 +51,8 @@ while True:
   # Handle Screens
   manager.update()
   manager.draw(DISPLAYSURF, fontObj)
+  pygame.display.update()
+
 
   # Exit Game on ESC
   for event in pygame.event.get():

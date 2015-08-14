@@ -8,8 +8,10 @@ from pygame.math import *
 
 
 class Screenmanager (object):
+  screens = []
+
   def __init__(self):
-    self.screens = []
+    pass
 
 
   def init(self, screens = []):
@@ -19,27 +21,42 @@ class Screenmanager (object):
   def add_screen(self, screen):
     self.screens.append(screen)
 
+
   def del_screen(self, screen):
     self.screens.remove(screen)
 
 
+  def blend_in(self, screen):
+    screen.visible = True
+    screen.hasinput = True
+
+
+  def blend_out(self, screen):
+    screen.visible = False
+    screen.hasinput = False
+
+
   def update(self):
     for screen in self.screens:
-      screen.update()
+      if screen.hasinput:
+        screen.update()
 
 
   def draw(self, display, fontObj = []):
     for screen in self.screens:
-      screen.draw(display, fontObj)
+      if screen.visible:
+        screen.draw(display, fontObj)
 
 
 
 class Screen (object):
-  def __init__(self, manager):
-    self.visible = False
-    self.hasinput = False
-    self.manager = manager
+  visible = False
+  hasinput = False
+  manager = Screenmanager()
 
+
+  def __init__(self, manager):
+    self.manager = manager
 
   def update(self):
     pass
@@ -79,6 +96,8 @@ class Gamescreen (Screen):
     self.balls = []
 
   def update(self):
+    if not self.hasinput:
+      return
     # Handle the Input
     pressed = pygame.key.get_pressed()
     if pressed[K_LEFT]:
@@ -116,10 +135,12 @@ class Gamescreen (Screen):
         self.player.color = RED
 
   def draw(self, display, fontObj = []):
-    if self.drawqt:
-      self.qt.draw(display, fontObj)
-      for quad in self.qt.get_quads(self.player.get_rect()):
-        pygame.draw.rect(display, GREEN, quad.rect, 1)
+    if not self.visible:
+      return
+
+    self.qt.draw(display, fontObj)
+    for quad in self.qt.get_quads(self.player.get_rect()):
+      pygame.draw.rect(display, GREEN, quad.rect, 1)
 
     # Draw the Player and Balls
     pygame.draw.circle(display, self.player.color, self.player.get_postuple(), self.player.radius, 0)
@@ -129,8 +150,4 @@ class Gamescreen (Screen):
 
     for colobj in self.player.collisions:
       colobj.color = YELLOW
-
-
-
-    pygame.display.update()
 
