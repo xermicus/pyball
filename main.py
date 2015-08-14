@@ -12,6 +12,7 @@ from quadtree import *
 from gamecomponents import *
 from random import randint
 from pygame.math import *
+from screen import *
 
 # init pygame, the display surface and set a windowhtitle
 pygame.init()
@@ -27,11 +28,11 @@ alphaSurface = DISPLAYSURF.convert_alpha
 # using fonts
 fontObj = pygame.font.Font('freesansbold.ttf', 10)
 
-# initi content
-player = Ball(50, 50, 15, GREEN, 5)
-qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
-qt.insert_obj(player)
-balls = []
+# Screenmanager + Inital Menu-Screen
+manager = Screenmanager()
+gamescreen = Gamescreen(manager)
+gamescreen.init()
+manager.add_screen(gamescreen)
 
 
 # main game loop
@@ -40,57 +41,14 @@ while True:
 
   # Let me know the current FPS-Rate
   pygame.display.set_caption('PyBall - FPS: ' + str(int(fpsClock.get_fps())))
+  fpsClock.tick(FPS)
 
-  # Handle the Input
-  pressed = pygame.key.get_pressed()
-  if pressed[K_LEFT]:
-    player.move(LEFT, qt)
-  if pressed[K_RIGHT]:
-    player.move(RIGHT, qt)
-  if pressed[K_UP]:
-    player.move(UP, qt)
-  if pressed[K_DOWN]:
-    player.move(DOWN, qt)
-  if pressed[K_SPACE]:
-    qt.draw(DISPLAYSURF, fontObj)
-    for quad in qt.get_quads(player.get_rect()):
-      pygame.draw.rect(DISPLAYSURF, GREEN, quad.rect, 1)
-  if pressed[K_r]:
-    if balls:
-      qt.remove_obj(balls[len(balls) -1])
-      balls.remove(balls[len(balls) -1])
-  if pressed[K_a]:
-    ball = Ball(randint(20, 1260), randint(20, 700), randint(player.radius - 14, player.radius + 10), YELLOW, 0)
-    balls.append(ball)
-    qt.insert_obj(ball)
+  # Handle Screens
+  manager.update()
+  manager.draw(DISPLAYSURF, fontObj)
+
+  # Exit Game on ESC
   for event in pygame.event.get():
     if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
       pygame.quit()
-      #sys.exit()
-
-
-  # Collision
-  player.collisions = qt.get_collisions(player)
-  for colobj in player.collisions:
-    if player.radius > colobj.radius:
-      player.radius += (int)((10 * colobj.radius) / 100)
-      colobj.alive = False
-      if colobj in balls:
-        qt.remove_obj(colobj)
-        balls.remove(colobj)
-    else:
-      player.color = RED
-
-  # Draw the Player and Balls
-  pygame.draw.circle(DISPLAYSURF, player.color, player.get_postuple(), player.radius, 0)
-  for ball in balls:
-    if ball.alive:
-      pygame.draw.circle(DISPLAYSURF, ball.color, ball.get_postuple(), ball.radius, 0)
-
-  for colobj in player.collisions:
-    colobj.color = YELLOW
-
-
-  pygame.display.update()
-
-  fpsClock.tick(FPS)
+      sys.exit()
