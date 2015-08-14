@@ -7,11 +7,6 @@ LEFT = Vector2(-1, 0)
 UP = Vector2(0, -1)
 DOWN = Vector2(0, 1)
 
-class Drawable_gamecomponent (object):
-  def __init__ (self, posx, posy):
-    self.posx = posx
-    self.posy = posy
-
 
 class Ball (object):
   def __init__ (self, posx, posy, radius, color, speed):
@@ -39,7 +34,7 @@ class Ball (object):
 
   # issues 831
 
-class Button (Drawable_gamecomponent):
+class Button (object):
   #pressed = False
   focus = False
   label = ""
@@ -55,9 +50,8 @@ class Button (Drawable_gamecomponent):
 
   def draw(self, display, fontObj = []):
     if fontObj:
-      textObj = fontObj.render(self.label, True, BLACK, BGCOLOR)
+      textObj = fontObj.render(self.label, True, BLACK)
       textObjRect = textObj.get_rect()
       textObjRect.center = self.position
       display.blit(textObj, textObjRect)
-
 

@@ -28,6 +28,8 @@ class Screenmanager (object):
     if self.screens[1].visible:
       self.screens[1].visible = False
       self.screens[1].hasinput = False
+    if self.screens[2].visible:
+      self.screens[2] = Levelscreen(self)
 
     newscreen.visible = True
     newscreen.hasinput = True
@@ -75,15 +77,18 @@ class Screen (object):
 
 
 class Menuscreen (Screen):
-  b_game = Button("Play", (1280/2, 720/2 - 50))
-  b_quit = Button("Quit", (1280/2, 720/2 + 50))
+  bg_img = pygame.image.load('bg_menu.png')
+  b_game = Button("Play", (1280/2, 720/2 - 100))
+  b_quit = Button("Quit", (1280/2, 720/2 + 100))
+  b_level = Button("Leveleditor", (1280/2, 720/2))
   buttons = []
   pygame.font.init()
-  font_small = pygame.font.Font('freesansbold.ttf', 50)
-  font_big = pygame.font.Font('freesansbold.ttf', 80)
+  font_small = pygame.font.Font('freesansbold.ttf', 40)
+  font_big = pygame.font.Font('freesansbold.ttf', 70)
 
   def __init__(self, manager):
     self.buttons.append(self.b_game)
+    self.buttons.append(self.b_level)
     self.buttons.append(self.b_quit)
     self.buttons[0].focus = True
 
@@ -109,6 +114,8 @@ class Menuscreen (Screen):
       if (event.type == KEYUP and event.key == K_SPACE):
         if self.b_game.focus:
           self.manager.blend_in(self.manager.screens[0])
+        if self.b_level.focus:
+          self.manager.blend_in(self.manager.screens[2])
         if self.b_quit.focus:
           pygame.quit()
           sys.exit()
@@ -118,6 +125,13 @@ class Menuscreen (Screen):
 
 
   def draw(self, display, fontObj = []):
+    if not self.visible:
+      return
+
+    for i in range(0,3):
+      for j in range(0,3):
+        display.blit(self.bg_img, (540 * i, 578 * j))
+
     for button in self.buttons:
       if button.focus:
         button.draw(display, self.font_big)
@@ -126,11 +140,14 @@ class Menuscreen (Screen):
 
 
 class Gamescreen (Screen):
+  bg_img = pygame.image.load('bg_game.png')
+
   def __init__(self, manager):
     self.player = Ball(50, 50, 15, GREEN, 5)
     self.qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
     self.qt.insert_obj(self.player)
     self.balls = []
+    self.drawqt = False
 
   def update(self):
     if not self.hasinput:
@@ -180,9 +197,12 @@ class Gamescreen (Screen):
     if not self.visible:
       return
 
-    self.qt.draw(display, fontObj)
-    for quad in self.qt.get_quads(self.player.get_rect()):
-      pygame.draw.rect(display, GREEN, quad.rect, 1)
+    display.blit(self.bg_img,(-100,-50))
+
+    if self.drawqt:
+      self.qt.draw(display, fontObj)
+      for quad in self.qt.get_quads(self.player.get_rect()):
+        pygame.draw.rect(display, GREEN, quad.rect, 1)
 
     # Draw the Player and Balls
     pygame.draw.circle(display, self.player.color, self.player.get_postuple(), self.player.radius, 0)
@@ -192,4 +212,90 @@ class Gamescreen (Screen):
 
     for colobj in self.player.collisions:
       colobj.color = YELLOW
+
+
+class Levelscreen (Screen):
+  bg_img = pygame.image.load('bg_menu.png')
+  b_safe = Button("Safe", (60, 30))
+  b_quit = Button("Quit", (60, 70))
+  buttons = []
+  pygame.font.init()
+  font_small = pygame.font.Font('freesansbold.ttf', 25)
+  font_big = pygame.font.Font('freesansbold.ttf', 40)
+
+  pos_mouse = (0,0)
+  pos_new1 = (0,0)
+  pos_new2 = (0,0)
+  blocks = []
+
+  def __init__(self, manager):
+    self.buttons.append(self.b_safe)
+    self.buttons.append(self.b_quit)
+    self.buttons[0].focus = True
+
+
+  def update(self):
+    for button in self.buttons:
+      button.update()
+
+    #pressed = pygame.key.get_pressed()
+    for event in pygame.event.get():
+      if (event.type == KEYUP and event.key == K_UP):
+        for i in range(0, len(self.buttons)):
+          if self.buttons[i].focus and i > 0:
+            self.buttons[i].focus = False
+            self.buttons[i - 1].focus = True
+            break
+      if (event.type == KEYUP and event.key == K_DOWN):
+        for i in range(0, len(self.buttons)):
+          if self.buttons[i].focus and i < len(self.buttons) - 1:
+            self.buttons[i].focus = False
+            self.buttons[i + 1].focus = True
+            break
+      if (event.type == KEYUP and event.key == K_SPACE):
+        if self.b_safe.focus:
+          pass
+        if self.b_quit.focus:
+          self.manager.blend_in(self.manager.screens[1])
+      if (event.type == KEYUP and event.key == K_ESCAPE):
+        self.manager.blend_in(self.manager.screens[1])
+    # Mouse
+      if (event.type == MOUSEBUTTONUP and event.button == 1):
+        if self.pos_new1 == (0,0):
+          self.pos_new1 = self.pos_mouse
+        else:
+          self.blocks.append(Rect(self.pos_new1, (self.pos_mouse[0] - self.pos_new1[0], self.pos_mouse[1] - self.pos_new1[1])))
+          self.pos_new1 = (0,0)
+      if event.type == MOUSEMOTION:
+        self.pos_mouse = event.pos
+
+
+  def draw(self, display, fontObj = []):
+    if not self.visible:
+      return
+
+    # Background
+    for i in range(0,3):
+      for j in range(0,3):
+        display.blit(self.bg_img, (540 * i, 578 * j))
+
+
+    if self.pos_new1 != (0,0):
+      pygame.draw.rect(display, BLACK, (self.pos_new1, (self.pos_mouse[0] - self.pos_new1[0], self.pos_mouse[1] - self.pos_new1[1])))
+
+    for block in self.blocks:
+      pygame.draw.rect(display, BLACK, block)
+
+
+    for button in self.buttons:
+      if button.focus:
+        button.draw(display, self.font_big)
+      else:
+        button.draw(display, self.font_small)
+
+    if fontObj:
+      textObj = fontObj.render(str(self.pos_mouse), True, BLACK)
+      textObjRect = textObj.get_rect()
+      textObjRect.center = (1240,705)
+      display.blit(textObj, textObjRect)
 

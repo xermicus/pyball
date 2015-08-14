@@ -1,9 +1,9 @@
 # TODO
 # - Map
 # - Physics
-# - Menu
 # - 2D Models
 # - Shots
+# - Sounds
 
 
 import pygame, sys
@@ -27,16 +27,18 @@ pygame.display.set_caption('PyBall')
 alphaSurface = DISPLAYSURF.convert_alpha
 
 # using fonts
-fontObj = pygame.font.Font('freesansbold.ttf', 10)
+fontObj = pygame.font.Font('freesansbold.ttf', 15)
 
 # Screenmanager + Inital Menu-Scireen
 manager = Screenmanager()
 gamescreen = Gamescreen(manager)
 manager.add_screen(gamescreen)
-#manager.blend_in(gamescreen)
 menuscreen = Menuscreen(manager)
 manager.add_screen(menuscreen)
+levelscreen = Levelscreen(manager)
+manager.add_screen(levelscreen)
 manager.blend_in(menuscreen)
+
 
 
 # main game loop
