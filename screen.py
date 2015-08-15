@@ -142,7 +142,7 @@ class Gamescreen (Screen):
 
 
   def __init__(self, manager):
-    self.player = Ball(50, 50, 15, GREEN, 5)
+    self.player = Ball(randint(200, 1080), -50, 15, GREEN, 5)
     self.player.direction = DOWN
     self.qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
     self.qt.insert_obj(self.player)
@@ -155,6 +155,12 @@ class Gamescreen (Screen):
     for block in lvl:
       self.level.append(Block(block))
       self.qt.insert_obj(Block(block))
+
+  def respawn_player(self):
+    self.qt.remove_obj(self.player)
+    self.player = Ball(randint(200, 1080), -50, 15, GREEN, 5)
+    self.player.direction = DOWN
+    self.qt.insert_obj(self.player)
 
   def update(self):
     if not self.hasinput:
@@ -202,13 +208,16 @@ class Gamescreen (Screen):
     for colobj in self.player.collisions:
       if oldpos[1] <= colobj.get_rect().top and not pressed[K_DOWN]:
         if pressed[K_UP]:
-          self.player.gravity = -1.5
+          self.player.gravity = -2
         else:
           self.player.move(Vector2(0, self.player.direction.y * -1), self.qt, self.player.gravity)
           self.player.gravity = 0
       elif oldpos[0]+self.player.get_rect().w <= colobj.get_rect().left  or oldpos[0] >= colobj.get_rect().right:
         self.player.move(Vector2(self.player.direction.x * -1, 0), self.qt, self.player.gravity)
 
+    # die
+    if self.player.position.y >= 2500:
+      self.respawn_player()
 
 
   def draw(self, display, fontObj = []):

@@ -1,9 +1,9 @@
 # TODO
-# - Map
-# - Physics
+# - Second player
 # - 2D Models
 # - Shotsh
 # - Sounds
+# - Game score, deads
 
 
 import pygame, sys
