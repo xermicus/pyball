@@ -37,7 +37,6 @@ class Ball (object):
   def get_postuple(self):
     return (int(self.position.x), int(self.position.y))
 
-  # issues 831
 
 class Block:
   def __init__ (self, rect, color = DARKGREY):
@@ -52,7 +51,6 @@ class Block:
 
 
 class Button (object):
-  #pressed = False
   focus = False
   label = ""
   position = (0, 0)

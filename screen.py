@@ -59,7 +59,6 @@ class Screen (object):
   hasinput = False
   manager = Screenmanager()
 
-
   def __init__(self, manager):
     self.manager = manager
     self.label = label
@@ -91,6 +90,8 @@ class Menuscreen (Screen):
     self.buttons.append(self.b_game)
     self.buttons.append(self.b_level)
     self.buttons.append(self.b_quit)
+    for button in self.buttons:
+      button.focus = False
     self.buttons[0].focus = True
 
 
@@ -176,8 +177,14 @@ class Gamescreen (Screen):
     if pressed[K_UP]:
       self.player.move(UP, self.qt)
     if pressed[K_DOWN]:
-      # Level collision:
-      self.player.move( DOWN, self.qt)
+    # Collision
+      allowed = True
+      self.player.collisions = self.qt.get_collisions(self.player)
+      for colobj in self.player.collisions:
+        colobj.color = RED
+        allowed = False
+      if allowed:
+        self.player.move( DOWN, self.qt)
     if pressed[K_SPACE]:
       self.drawqt = True
     else:
@@ -190,11 +197,6 @@ class Gamescreen (Screen):
       ball = Ball(randint(20, 1260), randint(20, 700), randint(self.player.radius - 14, self.player.radius + 10), YELLOW, 0)
       self.balls.append(ball)
       self.qt.insert_obj(ball)
-
-    # Collision
-    self.player.collisions = self.qt.get_collisions(self.player)
-    for colobj in self.player.collisions:
-      colobj.color = RED
 
 
   def draw(self, display, fontObj = []):
@@ -221,12 +223,6 @@ class Gamescreen (Screen):
       self.qt.draw(display, fontObj)
       for quad in self.qt.get_quads(self.player.get_rect()):
         pygame.draw.rect(display, GREEN, quad.rect, 1)
-
-    if fontObj:
-      pass#textObj = fontObj.render(str(self.level[1].rect), True, BLACK)
-      #textObjRect = textObj.get_rect()
-      #textObjRect.center = (1000,650)
-      #display.blit(textObj, textObjRect)
 
 
 
