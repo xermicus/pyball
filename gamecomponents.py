@@ -23,8 +23,6 @@ class Ball (object):
       self.rect = rect
 
   def get_rect(self):
-    if self.rect:
-      return self.rect
     return pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, self.radius * 2, self.radius * 2)
 
 
@@ -40,6 +38,18 @@ class Ball (object):
     return (int(self.position.x), int(self.position.y))
 
   # issues 831
+
+class Block:
+  def __init__ (self, rect, color = DARKGREY):
+    self.rect = rect
+    self.color = color
+
+  def get_rect (self):
+    return self.rect
+
+  def get_postuple (self):
+    return (int(self.rect.x), int(self.rect.y))
+
 
 class Button (object):
   #pressed = False

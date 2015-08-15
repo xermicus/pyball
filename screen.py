@@ -151,10 +151,13 @@ class Gamescreen (Screen):
     self.qt.insert_obj(self.player)
     self.balls = []
     self.drawqt = False
+    lvl = []
+    self.level = []
     with open("lvl.txt", 'rb') as f:
-      self.level = pickle.load(f)
-    for block in self.level:
-      self.qt.insert_obj(Ball(block.x, block.y, 20, YELLOW, 0, block))
+      lvl = pickle.load(f)
+    for block in lvl:
+      self.level.append(Block(block))
+      self.qt.insert_obj(Block(block))
 
   def update(self):
     if not self.hasinput:
@@ -173,13 +176,8 @@ class Gamescreen (Screen):
     if pressed[K_UP]:
       self.player.move(UP, self.qt)
     if pressed[K_DOWN]:
-      # Level collision
-      allowed = True
-      for block in self.level:
-        if self.player.get_rect().colliderect(block):
-          allowed = False
-      if allowed:
-        self.player.move( DOWN, self.qt)
+      # Level collision:
+      self.player.move( DOWN, self.qt)
     if pressed[K_SPACE]:
       self.drawqt = True
     else:
@@ -193,18 +191,10 @@ class Gamescreen (Screen):
       self.balls.append(ball)
       self.qt.insert_obj(ball)
 
-
     # Collision
     self.player.collisions = self.qt.get_collisions(self.player)
     for colobj in self.player.collisions:
-      if self.player.radius > colobj.radius:
-        self.player.radius += (int)((10 * colobj.radius) / 100)
-        colobj.alive = False
-        if colobj in self.balls:
-          self.qt.remove_obj(colobj)
-          self.balls.remove(colobj)
-      else:
-        self.player.color = RED
+      colobj.color = RED
 
 
   def draw(self, display, fontObj = []):
@@ -216,12 +206,10 @@ class Gamescreen (Screen):
         display.blit(self.bg_img, (540 * i, 578 * j))
 
     for block in self.level:
-      pygame.draw.rect(display, DARKGREY, block)
+      pygame.draw.rect(display, block.color, block.get_rect())
+      if self.player.get_rect().colliderect(block.get_rect()):
+        self.player.color = NAVYBLUE
 
-    if self.drawqt:
-      self.qt.draw(display, fontObj)
-      for quad in self.qt.get_quads(self.player.get_rect()):
-        pygame.draw.rect(display, GREEN, quad.rect, 1)
 
     # Draw the Player and Balls
     pygame.draw.circle(display, self.player.color, self.player.get_postuple(), self.player.radius, 0)
@@ -229,8 +217,18 @@ class Gamescreen (Screen):
       if ball.alive:
         pygame.draw.circle(display, ball.color, ball.get_postuple(), ball.radius, 0)
 
-    for colobj in self.player.collisions:
-      colobj.color = YELLOW
+    if self.drawqt:
+      self.qt.draw(display, fontObj)
+      for quad in self.qt.get_quads(self.player.get_rect()):
+        pygame.draw.rect(display, GREEN, quad.rect, 1)
+
+    if fontObj:
+      pass#textObj = fontObj.render(str(self.level[1].rect), True, BLACK)
+      #textObjRect = textObj.get_rect()
+      #textObjRect.center = (1000,650)
+      #display.blit(textObj, textObjRect)
+
+
 
 
 class Levelscreen (Screen):
@@ -275,6 +273,8 @@ class Levelscreen (Screen):
       if (event.type == KEYUP and event.key == K_SPACE):
         if self.b_safe.focus:
           with open("lvl.txt", 'wb') as f:
+            for block in self.blocks:
+              block.normalize()
             pickle.dump(self.blocks, f)
         if self.b_quit.focus:
           self.manager.blend_in(self.manager.screens[1])

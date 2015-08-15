@@ -38,11 +38,6 @@ class Quadtree (object):
 
 
   def remove_obj(self, obj):
-    #if obj in self.objects:
-    #  self.objects.remove(obj)
-    #  self.parent.merge()
-    #for quad in self.quads:
-    #  quad.remove_obj(obj)
     containing = self.get_quads(obj.get_rect())
     for quad in containing:
       if obj in quad.objects:
