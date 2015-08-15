@@ -139,7 +139,6 @@ class Menuscreen (Screen):
 class Gamescreen (Screen):
   bg_img = pygame.image.load('bg_menu.png')
   level = []
-  gravity = 0.5
 
 
   def __init__(self, manager):
@@ -168,8 +167,8 @@ class Gamescreen (Screen):
         self.manager.blend_in(self.manager.screens[1])
       if event.type == KEYUP and (event.key == K_LEFT or event.key == K_RIGHT):
         self.player.direction.x = 0
-      if event.type == KEYUP and event.key == K_DOWN:
-        self.player.move(Vector2(0,0.6), self.qt)
+      #if event.type == KEYUP and event.key == K_DOWN:
+        #self.player.move(Vector2(0,0.6), self.qt)
     # PRESSED input
     pressed = pygame.key.get_pressed()
     if pressed[K_LEFT]:
@@ -178,11 +177,8 @@ class Gamescreen (Screen):
     if pressed[K_RIGHT]:
       self.player.direction.x = 1
       #self.player.move(RIGHT, self.qt)
-    if pressed[K_UP]:
-      self.player.move(UP, self.qt)
     if pressed[K_DOWN]:
-      #jump...
-      pass#self.player.move(DOWN, self.qt)
+      pass#self.player.move(Vector2(0,0.6), self.qt)
     if pressed[K_SPACE]:
       self.drawqt = True
     else:
@@ -197,16 +193,21 @@ class Gamescreen (Screen):
       self.qt.insert_obj(ball)
 
     # Gravity
-    #self.player.collisions = self.qt.get_collisions(self.player)
+    #jump
+    self.player.gravity += 0.05
     oldpos = self.player.get_rect().bottomleft
 
-    self.player.move(self.player.direction, self.qt, self.gravity)
+    self.player.move(self.player.direction, self.qt, self.player.gravity)
     self.player.collisions = self.qt.get_collisions(self.player)
     for colobj in self.player.collisions:
-      if oldpos[1] <= colobj.get_rect().top:
-        self.player.move(Vector2(0, self.player.direction.y * -1), self.qt, self.gravity)
+      if oldpos[1] <= colobj.get_rect().top and not pressed[K_DOWN]:
+        if pressed[K_UP]:
+          self.player.gravity = -1.5
+        else:
+          self.player.move(Vector2(0, self.player.direction.y * -1), self.qt, self.player.gravity)
+          self.player.gravity = 0
       elif oldpos[0]+self.player.get_rect().w <= colobj.get_rect().left  or oldpos[0] >= colobj.get_rect().right:
-        self.player.move(Vector2(self.player.direction.x * -1, 0), self.qt, self.gravity)
+        self.player.move(Vector2(self.player.direction.x * -1, 0), self.qt, self.player.gravity)
 
 
 
