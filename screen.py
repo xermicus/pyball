@@ -91,9 +91,6 @@ class Menuscreen (Screen):
 
 
   def update(self):
-    for button in self.buttons:
-      button.update()
-
     #pressed = pygame.key.get_pressed()
     for event in pygame.event.get():
       if (event.type == KEYUP and event.key == K_UP):
@@ -139,10 +136,11 @@ class Menuscreen (Screen):
 class Gamescreen (Screen):
   bg_img = pygame.image.load('bg_menu.png')
   level = []
+  shots = []
 
 
   def __init__(self, manager):
-    self.player = Ball(randint(200, 1080), -50, 15, GREEN, 5)
+    self.player = Ball(randint(200, 1080), -50, 15, NAVYBLUE, 5)
     self.player.direction = DOWN
     self.qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
     self.qt.insert_obj(self.player)
@@ -158,7 +156,7 @@ class Gamescreen (Screen):
 
   def respawn_player(self):
     self.qt.remove_obj(self.player)
-    self.player = Ball(randint(200, 1080), -50, 15, GREEN, 5)
+    self.player = Ball(randint(200, 1080), -50, 15, self.player.color, 5)
     self.player.direction = DOWN
     self.qt.insert_obj(self.player)
 
@@ -172,9 +170,10 @@ class Gamescreen (Screen):
       if (event.type == KEYUP and event.key == K_ESCAPE):
         self.manager.blend_in(self.manager.screens[1])
       if event.type == KEYUP and (event.key == K_LEFT or event.key == K_RIGHT):
-        self.player.direction.x = 0
-      #if event.type == KEYUP and event.key == K_DOWN:
-        #self.player.move(Vector2(0,0.6), self.qt)
+        if self.player.direction.x > 0:
+          self.player.direction.x = 0.9
+        else:
+          self.player.direction.x = -0.9
     # PRESSED input
     pressed = pygame.key.get_pressed()
     if pressed[K_LEFT]:
@@ -197,12 +196,22 @@ class Gamescreen (Screen):
       ball = Ball(randint(20, 1260), randint(20, 700), randint(self.player.radius - 14, self.player.radius + 10), YELLOW, 0)
       self.balls.append(ball)
       self.qt.insert_obj(ball)
+    if pressed[K_LSHIFT]:
+        newshot = Shot(self.player.get_rect(), RIGHT, True, 5)
+        self.shots.append(newshot)
+        self.qt.insert_obj(newshot)
 
     # Gravity
     #jump
     self.player.gravity += 0.05
-    oldpos = self.player.get_rect().bottomleft
+    #offset
+    if self.player.direction.x < 1 and self.player.direction.x > 0:
+      self.player.direction.x -= 0.04
+    elif self.player.direction.x > -1 and self.player.direction.x < 0:
+      self.player.direction.x += 0.04
 
+
+    oldpos = self.player.get_rect().bottomleft
     self.player.move(self.player.direction, self.qt, self.player.gravity)
     self.player.collisions = self.qt.get_collisions(self.player)
     for colobj in self.player.collisions:
@@ -214,6 +223,8 @@ class Gamescreen (Screen):
           self.player.gravity = 0
       elif oldpos[0]+self.player.get_rect().w <= colobj.get_rect().left  or oldpos[0] >= colobj.get_rect().right:
         self.player.move(Vector2(self.player.direction.x * -1, 0), self.qt, self.player.gravity)
+
+
 
     # die
     if self.player.position.y >= 2500:
@@ -231,7 +242,7 @@ class Gamescreen (Screen):
     for block in self.level:
       pygame.draw.rect(display, block.color, block.get_rect())
       if self.player.get_rect().colliderect(block.get_rect()):
-        self.player.color = WHITE
+        self.player.color = NAVYBLUE
 
 
     # Draw the Player and Balls
@@ -239,6 +250,10 @@ class Gamescreen (Screen):
     for ball in self.balls:
       if ball.alive:
         pygame.draw.circle(display, ball.color, ball.get_postuple(), ball.radius, 0)
+
+    # shots
+    for shot in self.shots:
+      pygame.draw.rect(display, shot.color, shot.rect)
 
     if self.drawqt:
       self.qt.draw(display, fontObj)
@@ -267,11 +282,6 @@ class Levelscreen (Screen):
     self.buttons.append(self.b_quit)
     self.buttons[0].focus = True
     self.blocks = []
-
-
-  def update(self):
-    for button in self.buttons:
-      button.update()
 
     #pressed = pygame.key.get_pressed()
     for event in pygame.event.get():
@@ -330,6 +340,7 @@ class Levelscreen (Screen):
         button.draw(display, self.font_big)
       else:
         button.draw(display, self.font_small)
+
 
     if fontObj:
       textObj = fontObj.render(str(self.pos_mouse), True, BLACK)

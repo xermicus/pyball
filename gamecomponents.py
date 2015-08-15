@@ -12,6 +12,8 @@ class Ball (object):
   rect = None
   inblock = True
   gravity = 0
+  score = 0
+  ammo = -1
 
   def __init__ (self, posx, posy, radius = 0, color = YELLOW, speed = 0, rect = None):
     self.position = Vector2(posx, posy)
@@ -34,13 +36,13 @@ class Ball (object):
       self.position += Vector2(direction.x, direction.y * gravity) * self.speed
       quadtree.insert_obj(self)
     else:
-      self.position += Vector2(direction.x, direction.y * gravity) * gravity
+      self.position += Vector2(direction.x, direction.y * gravity) * self.speed
 
   def get_postuple(self):
     return (int(self.position.x), int(self.position.y))
 
 
-class Block:
+class Block(object):
   def __init__ (self, rect, color = DARKGREY):
     self.rect = rect
     self.color = color
@@ -52,6 +54,22 @@ class Block:
     return (int(self.rect.x), int(self.rect.y))
 
 
+class Shot(object):
+  def __init__ (self, rect, direction, alive, speed, color = RED):
+    self.rect = rect
+    self.color = color
+    self.direction = direction
+    self.alive = alive
+
+  def update(self):
+    pass
+
+  def get_rect (self):
+    return self.rect
+
+  def get_postuple (self):
+    return (int(self.rect.x), int(self.rect.y))
+
 class Button (object):
   focus = False
   label = ""
@@ -60,10 +78,6 @@ class Button (object):
   def __init__(self, label, position):
     self.label = label
     self.position = position
-
-  def update(self):
-    #check for input?
-    pass
 
   def draw(self, display, fontObj = []):
     if fontObj:

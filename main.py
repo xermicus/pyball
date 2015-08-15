@@ -3,7 +3,7 @@
 # - 2D Models
 # - Shotsh
 # - Sounds
-# - Game score, deads
+# - Game score
 
 
 import pygame, sys
