@@ -139,6 +139,7 @@ class Menuscreen (Screen):
 class Gamescreen (Screen):
   bg_img = pygame.image.load('bg_menu.png')
   level = []
+  gravity = 0.5
 
 
   def __init__(self, manager):
@@ -199,11 +200,13 @@ class Gamescreen (Screen):
     #self.player.collisions = self.qt.get_collisions(self.player)
     oldpos = self.player.get_rect().bottomleft
 
-    self.player.move(self.player.direction, self.qt, 0.5)
+    self.player.move(self.player.direction, self.qt, self.gravity)
     self.player.collisions = self.qt.get_collisions(self.player)
     for colobj in self.player.collisions:
       if oldpos[1] <= colobj.get_rect().top:
-        self.player.move(Vector2(self.player.direction.x, self.player.direction.y * -1), self.qt, 0.5)
+        self.player.move(Vector2(0, self.player.direction.y * -1), self.qt, self.gravity)
+      elif oldpos[0]+self.player.get_rect().w <= colobj.get_rect().left  or oldpos[0] >= colobj.get_rect().right:
+        self.player.move(Vector2(self.player.direction.x * -1, 0), self.qt, self.gravity)
 
 
 

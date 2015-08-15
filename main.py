@@ -53,8 +53,3 @@ while True:
   manager.draw(DISPLAYSURF, fontObj)
   pygame.display.update()
 
-
-  # Exit Game on ESC
-  # Moved to Menuscreen
-  #for event in pygame.event.get():
-
