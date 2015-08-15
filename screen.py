@@ -160,32 +160,28 @@ class Gamescreen (Screen):
     if not self.hasinput:
       return
 
-    # Gravity
-    oldpos = self.player.position
-    self.player.move(self.player.direction, self.qt, 0.5)
-    self.player.collisions = self.qt.get_collisions(self.player)
-    for colobj in self.player.collisions:
-      if self.player.get_rect().bottom > colobj.get_rect().top:
-        self.player.move(self.player.direction * -1, self.qt, 0.5)
-
     # Handle the Input
     # KEYUP input
     for event in pygame.event.get():
       if (event.type == KEYUP and event.key == K_ESCAPE):
         self.manager.blend_in(self.manager.screens[1])
+      if event.type == KEYUP and (event.key == K_LEFT or event.key == K_RIGHT):
+        self.player.direction.x = 0
+      if event.type == KEYUP and event.key == K_DOWN:
+        self.player.move(Vector2(0,0.6), self.qt)
     # PRESSED input
     pressed = pygame.key.get_pressed()
-    self.player.collisions = self.qt.get_collisions(self.player)
     if pressed[K_LEFT]:
-      self.player.move(LEFT, self.qt)
+      self.player.direction.x = -1
+      #self.player.move(LEFT, self.qt)
     if pressed[K_RIGHT]:
-      self.player.move(RIGHT, self.qt)
+      self.player.direction.x = 1
+      #self.player.move(RIGHT, self.qt)
     if pressed[K_UP]:
       self.player.move(UP, self.qt)
     if pressed[K_DOWN]:
-      self.player.move(DOWN, self.qt)
-    # Collision
-
+      #jump...
+      pass#self.player.move(DOWN, self.qt)
     if pressed[K_SPACE]:
       self.drawqt = True
     else:
@@ -198,6 +194,17 @@ class Gamescreen (Screen):
       ball = Ball(randint(20, 1260), randint(20, 700), randint(self.player.radius - 14, self.player.radius + 10), YELLOW, 0)
       self.balls.append(ball)
       self.qt.insert_obj(ball)
+
+    # Gravity
+    #self.player.collisions = self.qt.get_collisions(self.player)
+    oldpos = self.player.get_rect().bottomleft
+
+    self.player.move(self.player.direction, self.qt, 0.5)
+    self.player.collisions = self.qt.get_collisions(self.player)
+    for colobj in self.player.collisions:
+      if oldpos[1] <= colobj.get_rect().top:
+        self.player.move(Vector2(self.player.direction.x, self.player.direction.y * -1), self.qt, 0.5)
+
 
 
   def draw(self, display, fontObj = []):
