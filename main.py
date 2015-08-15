@@ -2,7 +2,7 @@
 # - Map
 # - Physics
 # - 2D Models
-# - Shots
+# - Shotsh
 # - Sounds
 
 
@@ -38,7 +38,6 @@ manager.add_screen(menuscreen)
 levelscreen = Levelscreen(manager)
 manager.add_screen(levelscreen)
 manager.blend_in(menuscreen)
-
 
 
 # main game loop

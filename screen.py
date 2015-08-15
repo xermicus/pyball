@@ -36,11 +36,6 @@ class Screenmanager (object):
     newscreen.hasinput = True
 
 
-  #def blend_out(self, screen):
-  #  screen.visible = False
-  #  screen.hasinput = False
-
-
   def update(self):
     for screen in self.screens:
       if screen.hasinput:
@@ -148,6 +143,7 @@ class Gamescreen (Screen):
 
   def __init__(self, manager):
     self.player = Ball(50, 50, 15, GREEN, 5)
+    self.player.direction = DOWN
     self.qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
     self.qt.insert_obj(self.player)
     self.balls = []
@@ -163,13 +159,23 @@ class Gamescreen (Screen):
   def update(self):
     if not self.hasinput:
       return
+
+    # Gravity
+    oldpos = self.player.position
+    self.player.move(self.player.direction, self.qt, 0.5)
+    self.player.collisions = self.qt.get_collisions(self.player)
+    for colobj in self.player.collisions:
+      if self.player.get_rect().bottom > colobj.get_rect().top:
+        self.player.move(self.player.direction * -1, self.qt, 0.5)
+
     # Handle the Input
     # KEYUP input
     for event in pygame.event.get():
       if (event.type == KEYUP and event.key == K_ESCAPE):
         self.manager.blend_in(self.manager.screens[1])
-
+    # PRESSED input
     pressed = pygame.key.get_pressed()
+    self.player.collisions = self.qt.get_collisions(self.player)
     if pressed[K_LEFT]:
       self.player.move(LEFT, self.qt)
     if pressed[K_RIGHT]:
@@ -177,14 +183,9 @@ class Gamescreen (Screen):
     if pressed[K_UP]:
       self.player.move(UP, self.qt)
     if pressed[K_DOWN]:
+      self.player.move(DOWN, self.qt)
     # Collision
-      allowed = True
-      self.player.collisions = self.qt.get_collisions(self.player)
-      for colobj in self.player.collisions:
-        colobj.color = RED
-        allowed = False
-      if allowed:
-        self.player.move( DOWN, self.qt)
+
     if pressed[K_SPACE]:
       self.drawqt = True
     else:
@@ -210,7 +211,7 @@ class Gamescreen (Screen):
     for block in self.level:
       pygame.draw.rect(display, block.color, block.get_rect())
       if self.player.get_rect().colliderect(block.get_rect()):
-        self.player.color = NAVYBLUE
+        self.player.color = WHITE
 
 
     # Draw the Player and Balls

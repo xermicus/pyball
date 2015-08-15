@@ -10,6 +10,7 @@ DOWN = Vector2(0, 1)
 
 class Ball (object):
   rect = None
+  inblock = True
 
   def __init__ (self, posx, posy, radius = 0, color = YELLOW, speed = 0, rect = None):
     self.position = Vector2(posx, posy)
@@ -26,13 +27,13 @@ class Ball (object):
     return pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, self.radius * 2, self.radius * 2)
 
 
-  def move(self, direction = Vector2(0, 0), quadtree = []):
+  def move(self, direction = Vector2(0, 0), quadtree = [], gravity = 1.0):
     if quadtree:
       quadtree.remove_obj(self)
-      self.position += direction * self.speed
+      self.position += direction * self.speed * gravity
       quadtree.insert_obj(self)
     else:
-      self.position += direction * self.speed
+      self.position += direction * self.speed * gravity
 
   def get_postuple(self):
     return (int(self.position.x), int(self.position.y))
