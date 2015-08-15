@@ -55,14 +55,27 @@ class Block(object):
 
 
 class Shot(object):
-  def __init__ (self, rect, direction, alive, speed, color = RED):
+  def __init__ (self, position, rect, direction, alive, speed, player, color = BLACK):
     self.rect = rect
     self.color = color
     self.direction = direction
     self.alive = alive
+    self.speed = speed
+    self.position = Vector2(rect.center)
+    self.player = player
 
-  def update(self):
-    pass
+  def update(self, qt):
+    if self.alive:
+      #qt.remove_obj(self)
+      self.position += Vector2(self.direction.x, 0) * self.speed
+      self.rect.center = self.position
+      #qt.insert_obj(self)
+      if not self.rect.colliderect(pygame.Rect(0,0,1280,720)):
+        self.alive = False
+
+  def draw(self, display):
+    if self.alive:
+        pygame.draw.circle(display, self.color, self.rect.center, 3, 0)
 
   def get_rect (self):
     return self.rect

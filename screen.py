@@ -137,6 +137,9 @@ class Gamescreen (Screen):
   bg_img = pygame.image.load('bg_menu.png')
   level = []
   shots = []
+  shotdir = LEFT
+  shotevent = pygame.USEREVENT+1
+  canshoot = True
 
 
   def __init__(self, manager):
@@ -153,6 +156,7 @@ class Gamescreen (Screen):
     for block in lvl:
       self.level.append(Block(block))
       self.qt.insert_obj(Block(block))
+    pygame.time.set_timer(self.shotevent, 500)
 
   def respawn_player(self):
     self.qt.remove_obj(self.player)
@@ -165,6 +169,7 @@ class Gamescreen (Screen):
       return
 
     # Handle the Input
+    pressed = pygame.key.get_pressed()
     # KEYUP input
     for event in pygame.event.get():
       if (event.type == KEYUP and event.key == K_ESCAPE):
@@ -174,14 +179,17 @@ class Gamescreen (Screen):
           self.player.direction.x = 0.9
         else:
           self.player.direction.x = -0.9
+      if event.type == self.shotevent:
+        self.canshoot = True
+
+
     # PRESSED input
-    pressed = pygame.key.get_pressed()
     if pressed[K_LEFT]:
       self.player.direction.x = -1
-      #self.player.move(LEFT, self.qt)
+      self.shotdir = LEFT
     if pressed[K_RIGHT]:
       self.player.direction.x = 1
-      #self.player.move(RIGHT, self.qt)
+      self.shotdir = RIGHT
     if pressed[K_DOWN]:
       pass#self.player.move(Vector2(0,0.6), self.qt)
     if pressed[K_SPACE]:
@@ -196,10 +204,21 @@ class Gamescreen (Screen):
       ball = Ball(randint(20, 1260), randint(20, 700), randint(self.player.radius - 14, self.player.radius + 10), YELLOW, 0)
       self.balls.append(ball)
       self.qt.insert_obj(ball)
-    if pressed[K_LSHIFT]:
-        newshot = Shot(self.player.get_rect(), RIGHT, True, 5)
-        self.shots.append(newshot)
-        self.qt.insert_obj(newshot)
+    # shoot
+    if pressed[K_LSHIFT] and self.canshoot:
+      self.canshoot = False
+      new = True
+      for shot in self.shots:
+        if not shot.alive:
+          shot.position = Vector2(self.player.get_postuple())
+          shot.direction = self.shotdir
+          shot.alive = True
+          shot.player = self.player
+          new = False
+      if new:
+         newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.shotdir, True, 11, self.player)
+         self.shots.append(newshot)
+         #self.qt.insert_obj(newshot)
 
     # Gravity
     #jump
@@ -211,6 +230,7 @@ class Gamescreen (Screen):
       self.player.direction.x += 0.04
 
 
+    # Level Collision
     oldpos = self.player.get_rect().bottomleft
     self.player.move(self.player.direction, self.qt, self.player.gravity)
     self.player.collisions = self.qt.get_collisions(self.player)
@@ -224,11 +244,24 @@ class Gamescreen (Screen):
       elif oldpos[0]+self.player.get_rect().w <= colobj.get_rect().left  or oldpos[0] >= colobj.get_rect().right:
         self.player.move(Vector2(self.player.direction.x * -1, 0), self.qt, self.player.gravity)
 
-
-
     # die
     if self.player.position.y >= 2500:
       self.respawn_player()
+    # shoot
+    for shot in self.shots:
+      shot.update(self.qt)
+      if self.player.get_rect().colliderect(shot.get_rect()) and shot.player == self.player:
+        if shot.direction.x < 0:
+          self.player.direction.x = 0.9
+        else:
+          self.player.direction.x = -0.9
+      if self.player.get_rect().colliderect(shot.get_rect()) and shot.player != self.player:
+        if shot.direction.x > 0:
+          self.player.direction.x = 0.9
+        else:
+          self.player.direction.x = -0.9
+
+    self.last_tick = pygame.time.get_ticks()
 
 
   def draw(self, display, fontObj = []):
@@ -253,7 +286,7 @@ class Gamescreen (Screen):
 
     # shots
     for shot in self.shots:
-      pygame.draw.rect(display, shot.color, shot.rect)
+      shot.draw(display)
 
     if self.drawqt:
       self.qt.draw(display, fontObj)

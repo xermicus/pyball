@@ -1,7 +1,7 @@
 # TODO
 # - Second player
 # - 2D Models
-# - Shotsh
+# - Shots
 # - Sounds
 # - Game score
 
