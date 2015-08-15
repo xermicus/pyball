@@ -141,7 +141,7 @@ class Menuscreen (Screen):
 
 
 class Gamescreen (Screen):
-  bg_img = pygame.image.load('bg_game.png')
+  bg_img = pygame.image.load('bg_menu.png')
   level = []
 
 
@@ -153,6 +153,8 @@ class Gamescreen (Screen):
     self.drawqt = False
     with open("lvl.txt", 'rb') as f:
       self.level = pickle.load(f)
+    for block in self.level:
+      self.qt.insert_obj(Ball(block.x, block.y, 20, YELLOW, 0, block))
 
   def update(self):
     if not self.hasinput:
@@ -171,7 +173,13 @@ class Gamescreen (Screen):
     if pressed[K_UP]:
       self.player.move(UP, self.qt)
     if pressed[K_DOWN]:
-      self.player.move( DOWN, self.qt)
+      # Level collision
+      allowed = True
+      for block in self.level:
+        if self.player.get_rect().colliderect(block):
+          allowed = False
+      if allowed:
+        self.player.move( DOWN, self.qt)
     if pressed[K_SPACE]:
       self.drawqt = True
     else:
@@ -198,11 +206,14 @@ class Gamescreen (Screen):
       else:
         self.player.color = RED
 
+
   def draw(self, display, fontObj = []):
     if not self.visible:
       return
 
-    display.blit(self.bg_img,(-100,-50))
+    for i in range(0,3):
+      for j in range(0,3):
+        display.blit(self.bg_img, (540 * i, 578 * j))
 
     for block in self.level:
       pygame.draw.rect(display, DARKGREY, block)

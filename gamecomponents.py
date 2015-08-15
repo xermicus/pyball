@@ -9,7 +9,9 @@ DOWN = Vector2(0, 1)
 
 
 class Ball (object):
-  def __init__ (self, posx, posy, radius, color, speed):
+  rect = None
+
+  def __init__ (self, posx, posy, radius = 0, color = YELLOW, speed = 0, rect = None):
     self.position = Vector2(posx, posy)
     self.radius = radius
     self.speed = speed
@@ -17,9 +19,14 @@ class Ball (object):
     self.collisions = []
     self.direction = Vector2(0, 0)
     self.alive = True
+    if rect:
+      self.rect = rect
 
   def get_rect(self):
+    if self.rect:
+      return self.rect
     return pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, self.radius * 2, self.radius * 2)
+
 
   def move(self, direction = Vector2(0, 0), quadtree = []):
     if quadtree:
