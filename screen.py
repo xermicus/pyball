@@ -137,13 +137,15 @@ class Gamescreen (Screen):
   bg_img = pygame.image.load('bg_menu.png')
   level = []
   shots = []
+  fontObj = pygame.font.Font('freesansbold.ttf', 35)
+  sps = 250
 
 
   def __init__(self, manager):
     self.player = Ball(randint(200, 1080), -50, 15, NAVYBLUE, 5, None, 1)
     self.player2 = Ball(randint(200, 1080), -50, 15, RED, 5, None, 2)
-    self.player.direction = DOWN
-    self.player2.direction = DOWN
+    self.player.direction = Vector2(0, 1)
+    self.player2.direction = Vector2(0, 1)
     self.qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
     self.qt.insert_obj(self.player)
     self.qt.insert_obj(self.player2)
@@ -156,14 +158,27 @@ class Gamescreen (Screen):
     for block in lvl:
       self.level.append(Block(block))
       self.qt.insert_obj(Block(block))
-    pygame.time.set_timer(self.player.shotevent, 500)
-    pygame.time.set_timer(self.player2.shotevent, 500)
+    pygame.time.set_timer(self.player.shotevent, self.sps)
+    pygame.time.set_timer(self.player2.shotevent, self.sps)
+    self.score1 = 0
+    self.score2 = 0
+    self.winner = None
 
-  def respawn_player(self, obj):
-    self.qt.remove_obj(obj)
-    obj = Ball(randint(200, 1080), -50, 15, obj.color, 5, None, obj.number)
-    obj.direction = DOWN
-    self.qt.insert_obj(obj)
+  def respawn_player(self):
+    self.score2 += 1
+    self.qt.remove_obj(self.player)
+    self.player = Ball(randint(200, 1080), -50, 15, self.player.color, 5, None, self.player.number)
+    self.player.direction = Vector2(0, 1)
+    self.qt.insert_obj(self.player)
+    pygame.time.set_timer(self.player.shotevent, self.sps)
+
+  def respawn_player2(self):
+    self.score1 += 1
+    self.qt.remove_obj(self.player2)
+    self.player2 = Ball(randint(200, 1080), -50, 15, self.player2.color, 5, None, self.player2.number)
+    self.player2.direction = Vector2(0, 1)
+    self.qt.insert_obj(self.player2)
+    pygame.time.set_timer(self.player2.shotevent, self.sps)
 
   def update(self):
     if not self.hasinput:
@@ -193,20 +208,22 @@ class Gamescreen (Screen):
 
     # PRESSED input
     if pressed[K_LEFT]:
-      self.player.direction.x = -1
-      self.player.shotdir = LEFT
+      if not self.player.acclock:
+        self.player.direction.x = -1
+        self.player.shotdir = LEFT
     if pressed[K_RIGHT]:
-      self.player.direction.x = 1
-      self.player.shotdir = RIGHT
+      if not self.player.acclock:
+        self.player.direction.x = 1
+        self.player.shotdir = RIGHT
     # Player2
     if pressed[K_a]:
-      self.player2.direction.x = -1
-      self.player2.shotdir = LEFT
+      if not self.player2.acclock:
+        self.player2.direction.x = -1
+        self.player2.shotdir = LEFT
     if pressed[K_d]:
-      self.player2.direction.x = 1
-      self.player2.shotdir = RIGHT
-    if pressed[K_DOWN]:
-      pass#self.player.move(Vector2(0,0.6), self.qt)
+      if not self.player2.acclock:
+        self.player2.direction.x = 1
+        self.player2.shotdir = RIGHT
     if pressed[K_SPACE]:
       self.drawqt = True
     else:
@@ -255,19 +272,23 @@ class Gamescreen (Screen):
     self.player.gravity += 0.05
     self.player2.gravity += 0.05
     #offset
-    if self.player.direction.x <= 1 and self.player.direction.x >= 0:
+    if self.player.direction.x <= 1.5 and self.player.direction.x >= 0:
       self.player.direction.x -= 0.04
       if self.player.direction.x < 0:
         self.player.direction.x = 0
-    elif self.player.direction.x >= -1 and self.player.direction.x <= 0:
+    elif self.player.direction.x >= -1.5 and self.player.direction.x <= 0:
       self.player.direction.x += 0.04
+    if self.player.direction.x > -0.3 and self.player.direction.x < 0.3:
+        self.player.acclock = False
     # Player2
-    if self.player2.direction.x <= 1 and self.player2.direction.x >= 0:
+    if self.player2.direction.x <= 1.5 and self.player2.direction.x >= 0:
       self.player2.direction.x -= 0.04
       if self.player2.direction.x < 0:
         self.player2.direction.x = 0
     elif self.player2.direction.x >= -1 and self.player2.direction.x <= 0:
       self.player2.direction.x += 0.04
+    if self.player2.direction.x > -0.3 and self.player2.direction.x < 0.3:
+        self.player2.acclock = False
 
 
     # Level Collision
@@ -299,9 +320,9 @@ class Gamescreen (Screen):
 
     # die
     if self.player.position.y >= 2500:
-      self.respawn_player(self.player)
+      self.respawn_player()
     if self.player2.position.y >= 2500:
-      self.respawn_player(self.player2)
+      self.respawn_player2()
     # shoot
     for shot in self.shots:
       shot.update(self.qt)
@@ -309,28 +330,43 @@ class Gamescreen (Screen):
         if self.player.get_rect().colliderect(shot.get_rect()) and shot.player == self.player:
           if shot.direction.x < 0:
             self.player.direction.x = 0.9
+            self.player.acclock = True
           else:
             self.player.direction.x = -0.9
+            self.player.acclock = True
         if self.player.get_rect().colliderect(shot.get_rect()) and shot.player != self.player:
           shot.alive = False
           if shot.direction.x > 0:
-            self.player.direction.x = 0.9
+            self.player.direction.x = 1.5
+            self.player.acclock = True
           else:
-            self.player.direction.x = -0.9
+            self.player.direction.x = -1.5
+            self.player.acclock = True
         #Player2
         if self.player2.get_rect().colliderect(shot.get_rect()) and shot.player == self.player2:
           if shot.direction.x < 0:
             self.player2.direction.x = 0.9
+            self.player2.acclock = True
           else:
             self.player2.direction.x = -0.9
+            self.player2.acclock = True
         if self.player2.get_rect().colliderect(shot.get_rect()) and shot.player != self.player2:
           shot.alive = False
           if shot.direction.x > 0:
-            self.player2.direction.x = 0.9
+            self.player2.direction.x = 1.5
+            self.player2.acclock = True
           else:
-            self.player2.direction.x = -0.9
+            self.player2.direction.x = -1.5
+            self.player2.acclock = True
 
-    #self.last_tick = pygame.time.get_ticks()
+    if self.winner:
+      pygame.time.wait(2500)
+      self.manager.blend_in(self.manager.screens[1])
+
+    if self.score1 >= 10:
+      self.winner = self.player
+    elif self.score2 >= 10:
+      self.winner = self.player2
 
 
   def draw(self, display, fontObj = []):
@@ -373,6 +409,25 @@ class Gamescreen (Screen):
       for quad in self.qt.get_quads(self.player.get_rect()):
         pygame.draw.rect(display, GREEN, quad.rect, 1)
 
+    textObj = self.fontObj.render(str(self.score1), True, self.player.color)
+    textObjRect = textObj.get_rect()
+    textObjRect.center = (1280/2 - 50,40)
+    display.blit(textObj, textObjRect)
+    textObj = self.fontObj.render(str(self.score2), True, self.player2.color)
+    textObjRect = textObj.get_rect()
+    textObjRect.center = (1280/2 + 50,40)
+    display.blit(textObj, textObjRect)
+
+    if self.winner == self.player:
+      textObj = self.fontObj.render("Player 1 win!", True, self.player.color)
+      textObjRect = textObj.get_rect()
+      textObjRect.center = (1280/2,90)
+      display.blit(textObj, textObjRect)
+    elif self.winner == self.player2:
+      textObj = self.fontObj.render("Player 2 win!", True, self.player2.color)
+      textObjRect = textObj.get_rect()
+      textObjRect.center = (1280/2,90)
+      display.blit(textObj, textObjRect)
 
 
 
@@ -440,20 +495,17 @@ class Levelscreen (Screen):
       for j in range(0,3):
         display.blit(self.bg_img, (540 * i, 578 * j))
 
-
     if self.pos_new1 != (0,0):
       pygame.draw.rect(display, BLACK, (self.pos_new1, (self.pos_mouse[0] - self.pos_new1[0], self.pos_mouse[1] - self.pos_new1[1])))
 
     for block in self.blocks:
       pygame.draw.rect(display, BLACK, block)
 
-
     for button in self.buttons:
       if button.focus:
         button.draw(display, self.font_big)
       else:
         button.draw(display, self.font_small)
-
 
     if fontObj:
       textObj = fontObj.render(str(self.pos_mouse), True, BLACK)
