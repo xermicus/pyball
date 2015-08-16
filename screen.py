@@ -224,9 +224,9 @@ class Gamescreen (Screen):
     #jump
     self.player.gravity += 0.05
     #offset
-    if self.player.direction.x < 1 and self.player.direction.x > 0:
+    if self.player.direction.x <= 1 and self.player.direction.x > 0:
       self.player.direction.x -= 0.04
-    elif self.player.direction.x > -1 and self.player.direction.x < 0:
+    elif self.player.direction.x >= -1 and self.player.direction.x < 0:
       self.player.direction.x += 0.04
 
 
@@ -280,6 +280,10 @@ class Gamescreen (Screen):
 
     # Draw the Player and Balls
     pygame.draw.circle(display, self.player.color, self.player.get_postuple(), self.player.radius, 0)
+    if self.shotdir == LEFT:
+      display.blit(self.player.guntex, (self.player.get_rect().left - 20, self.player.get_rect().top))
+    else:
+      display.blit(pygame.transform.flip(self.player.guntex, True, False), (self.player.get_rect().left + 15, self.player.get_rect().top))
     for ball in self.balls:
       if ball.alive:
         pygame.draw.circle(display, ball.color, ball.get_postuple(), ball.radius, 0)
@@ -380,4 +384,3 @@ class Levelscreen (Screen):
       textObjRect = textObj.get_rect()
       textObjRect.center = (1240,705)
       display.blit(textObj, textObjRect)
-

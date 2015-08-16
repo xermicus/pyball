@@ -14,6 +14,8 @@ class Ball (object):
   gravity = 0
   score = 0
   ammo = -1
+  guntex = pygame.image.load('gun.png')
+  guntex = pygame.transform.scale(guntex, (40,30))
 
   def __init__ (self, posx, posy, radius = 0, color = YELLOW, speed = 0, rect = None):
     self.position = Vector2(posx, posy)
