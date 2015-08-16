@@ -16,8 +16,10 @@ class Ball (object):
   ammo = -1
   guntex = pygame.image.load('gun.png')
   guntex = pygame.transform.scale(guntex, (40,30))
+  shotdir = LEFT
+  canshoot = True
 
-  def __init__ (self, posx, posy, radius = 0, color = YELLOW, speed = 0, rect = None):
+  def __init__ (self, posx, posy, radius = 0, color = YELLOW, speed = 0, rect = None, number = 1):
     self.position = Vector2(posx, posy)
     self.radius = radius
     self.speed = speed
@@ -27,6 +29,8 @@ class Ball (object):
     self.alive = True
     if rect:
       self.rect = rect
+    self.number = number
+    self.shotevent = pygame.USEREVENT+number
 
   def get_rect(self):
     return pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, self.radius * 2, self.radius * 2)
