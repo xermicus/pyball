@@ -74,10 +74,12 @@ class Shot(object):
       #qt.insert_obj(self)
       if not self.rect.colliderect(pygame.Rect(0,0,1280,720)):
         self.alive = False
+      self.rect = pygame.Rect(self.position.x -2, self.position.y -2, 4, 4)
 
   def draw(self, display):
     if self.alive:
         pygame.draw.circle(display, self.color, self.rect.center, 3, 0)
+        #pygame.draw.rect(display, RED, self.rect)
 
   def get_rect (self):
     return self.rect

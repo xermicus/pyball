@@ -224,9 +224,11 @@ class Gamescreen (Screen):
     #jump
     self.player.gravity += 0.05
     #offset
-    if self.player.direction.x <= 1 and self.player.direction.x > 0:
+    if self.player.direction.x <= 1 and self.player.direction.x >= 0:
       self.player.direction.x -= 0.04
-    elif self.player.direction.x >= -1 and self.player.direction.x < 0:
+      if self.player.direction.x < 0:
+        self.player.direction.x = 0
+    elif self.player.direction.x >= -1 and self.player.direction.x <= 0:
       self.player.direction.x += 0.04
 
 
