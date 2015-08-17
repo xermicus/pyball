@@ -142,8 +142,8 @@ class Gamescreen (Screen):
 
 
   def __init__(self, manager):
-    self.player = Ball(randint(200, 1080), -50, 15, NAVYBLUE, 5, None, 1)
-    self.player2 = Ball(randint(200, 1080), -50, 15, RED, 5, None, 2)
+    self.player = Ball(randint(200, 1080), -50, 20, NAVYBLUE, 5, None, 1)
+    self.player2 = Ball(randint(200, 1080), -50, 20, RED, 5, None, 2)
     self.player.direction = Vector2(0, 1)
     self.player2.direction = Vector2(0, 1)
     self.qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
@@ -167,7 +167,7 @@ class Gamescreen (Screen):
   def respawn_player(self):
     self.score2 += 1
     self.qt.remove_obj(self.player)
-    self.player = Ball(randint(200, 1080), -50, 15, self.player.color, 5, None, self.player.number)
+    self.player = Ball(randint(200, 1080), -50, 20, self.player.color, 5, None, self.player.number)
     self.player.direction = Vector2(0, 1)
     self.qt.insert_obj(self.player)
     pygame.time.set_timer(self.player.shotevent, self.sps)
@@ -175,7 +175,7 @@ class Gamescreen (Screen):
   def respawn_player2(self):
     self.score1 += 1
     self.qt.remove_obj(self.player2)
-    self.player2 = Ball(randint(200, 1080), -50, 15, self.player2.color, 5, None, self.player2.number)
+    self.player2 = Ball(randint(200, 1080), -50, 20, self.player2.color, 5, None, self.player2.number)
     self.player2.direction = Vector2(0, 1)
     self.qt.insert_obj(self.player2)
     pygame.time.set_timer(self.player2.shotevent, self.sps)
@@ -204,6 +204,20 @@ class Gamescreen (Screen):
         self.player.canshoot = True
       if event.type == self.player2.shotevent:
         self.player2.canshoot = True
+      if event.type == self.player2.shotevent:
+        self.player2.canshoot = True
+
+      for shot in self.shots:
+        if event.type == shot.explosion and shot.alive:
+          radius = 1
+          ### FIX
+          if self.player.get_rect().colliderect(self.player.get_rect().inflate(radius, radius)):
+            self.player.gravity = -1.5
+            if self.player.get_rect().left > shot.get_rect().right:
+              self.player.direction.x = 1.4
+            else:
+              self.player.direction.x = -1.4
+          shot.explode = True
 
 
     # PRESSED input
@@ -229,13 +243,31 @@ class Gamescreen (Screen):
     else:
       self.drawqt = False
     if pressed[K_r]:
-      if self.balls:
-        self.qt.remove_obj(self.balls[len(self.balls) -1])
-        self.balls.remove(self.balls[len(self.balls) -1])
+      pass#if self.balls:
+        #self.qt.remove_obj(self.balls[len(self.balls) -1])
+        #self.balls.remove(self.balls[len(self.balls) -1])
     if pressed[K_e]:
-      ball = Ball(randint(20, 1260), randint(20, 700), randint(self.player.radius - 14, self.player.radius + 10), YELLOW, 0)
-      self.balls.append(ball)
-      self.qt.insert_obj(ball)
+      pass#ball = Ball(randint(20, 1260), randint(20, 700), randint(self.player.radius - 14, self.player.radius + 10), YELLOW, 0)
+      #self.balls.append(ball)
+      #self.qt.insert_obj(ball)
+    if pressed[K_g] and self.player.canshoot and self.player.nades > 0:
+      self.player.nades -= 1
+      self.player.canshoot = False
+      new = True
+      for shot in self.shots:
+        if not shot.alive and shot.tex:
+          shot.position = Vector2(self.player.get_postuple())
+          shot.direction = DOWN
+          shot.alive = True
+          shot.player = self.player
+          new = False
+          pygame.time.set_timer(shot.explosion, 3000)
+      if new:
+        newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.player.shotdir, True, 11, self.player, GREEN, pygame.image.load('nade.png'), len(self.shots)+3)
+        self.shots.append(newshot)
+         #self.qt.insert_obj(newshot)if pressed[K_LSHIFT] and self.canshoot:
+
+
     # shoot
     if pressed[K_COMMA] and self.player.canshoot:
       self.player.canshoot = False
@@ -326,7 +358,7 @@ class Gamescreen (Screen):
     # shoot
     for shot in self.shots:
       shot.update(self.qt)
-      if shot.alive:
+      if shot.alive and not shot.tex:
         if self.player.get_rect().colliderect(shot.get_rect()) and shot.player == self.player:
           if shot.direction.x < 0:
             self.player.direction.x = 0.9
@@ -419,12 +451,12 @@ class Gamescreen (Screen):
     display.blit(textObj, textObjRect)
 
     if self.winner == self.player:
-      textObj = self.fontObj.render("Player 1 win!", True, self.player.color)
+      textObj = self.fontObj.render("Player 1 wins!", True, self.player.color)
       textObjRect = textObj.get_rect()
       textObjRect.center = (1280/2,90)
       display.blit(textObj, textObjRect)
     elif self.winner == self.player2:
-      textObj = self.fontObj.render("Player 2 win!", True, self.player2.color)
+      textObj = self.fontObj.render("Player 2 wins!", True, self.player2.color)
       textObjRect = textObj.get_rect()
       textObjRect.center = (1280/2,90)
       display.blit(textObj, textObjRect)

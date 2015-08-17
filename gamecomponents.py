@@ -13,6 +13,7 @@ class Ball (object):
   inblock = True
   gravity = 0
   ammo = -1
+  nades = 5
   guntex = pygame.image.load('gun.png')
   guntex = pygame.transform.scale(guntex, (40,30))
   shotdir = LEFT
@@ -61,7 +62,7 @@ class Block(object):
 
 
 class Shot(object):
-  def __init__ (self, position, rect, direction, alive, speed, player, color = BLACK):
+  def __init__ (self, position, rect, direction, alive, speed, player, color = BLACK, tex = None, number = 0):
     self.rect = rect
     self.color = color
     self.direction = direction
@@ -69,19 +70,70 @@ class Shot(object):
     self.speed = speed
     self.position = Vector2(rect.center)
     self.player = player
+    self.tex = tex
+    self.number = number
+    self.explosion = pygame.USEREVENT+number
+    self.exptex = pygame.image.load('explosion.png')
+    self.last_ticks = pygame.time.get_ticks()
+    self.expfps = 12
+    self.exprounds = 0
+    self.explode = False
+
+    if self.tex:
+      self.tex = pygame.transform.scale(self.tex, (25,25))
+      self.direction = Vector2(0,1)
+      self.speed = 0
+      pygame.time.set_timer(self.explosion, 3000)
+
+    self.exprects = []
+    for i in range(0,4):
+      for j in range(0,4):
+        self.exprects.append(pygame.Rect(j * 64, i * 64, 64, 64))
+    self.exprect = self.exprects[0]
+
 
   def update(self, qt):
-    if self.alive:
+    if self.tex and self.alive:
+      #explosition
+      if self.explode and pygame.time.get_ticks() > self.last_ticks + 1000 / self.expfps:
+        self.last_ticks = pygame.time.get_ticks()
+        self.exprect = self.exprects[self.exprounds - 1]
+        self.exprounds += 1
+        if self.exprounds > 16:
+          self.exprounds = 0
+          self.explode = False
+          self.alive = False
+
+      #collision
+      oldpos = self.get_rect().bottomleft
+      self.position += self.direction * self.speed
+      self.rect.center = self.position
+      if self.speed < 10:
+        self.speed += 0.15
+      if not self.rect.colliderect(pygame.Rect(0,0,1280,720)):
+        self.alive = False
+      collisions = qt.get_collisions(self)
+      for colobj in collisions:
+        if oldpos[1] <= colobj.get_rect().top and (type(colobj) is Block):
+          self.position -= self.direction * self.speed
+          self.direction = Vector2(0,0)
+
+    elif self.alive:
       #qt.remove_obj(self)
       self.position += Vector2(self.direction.x, 0) * self.speed
       self.rect.center = self.position
       #qt.insert_obj(self)
       if not self.rect.colliderect(pygame.Rect(0,0,1280,720)):
         self.alive = False
-      self.rect = pygame.Rect(self.position.x -2, self.position.y -2, 4, 4)
+      self.rect = pygame.Rect(self.position.x -10, self.position.y -10, 4, 4)
 
   def draw(self, display):
-    if self.alive:
+    if self.alive and self.tex:
+      if self.explode:
+        display.blit(self.exptex, self.rect, self.exprect)
+      else:
+        display.blit(self.tex, self.rect.center)
+    elif self.alive:
         pygame.draw.circle(display, self.color, self.rect.center, 3, 0)
         #pygame.draw.rect(display, RED, self.rect)
 
