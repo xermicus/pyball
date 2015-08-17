@@ -13,7 +13,7 @@ class Ball (object):
   inblock = True
   gravity = 0
   ammo = -1
-  nades = 5
+  nades = 1
   guntex = pygame.image.load('gun.png')
   guntex = pygame.transform.scale(guntex, (40,30))
   shotdir = LEFT

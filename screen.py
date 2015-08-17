@@ -209,18 +209,18 @@ class Gamescreen (Screen):
 
       for shot in self.shots:
         if event.type == shot.explosion and shot.alive:
-          radius = 50
+          radius = 150
           ### FIX
           posp = self.player.get_rect().center
           poss = shot.get_rect().center
           #if posp[0] < poss[0]:
-          if self.player.get_rect().colliderect(self.player.get_rect().inflate(radius, radius)):
+          if shot.get_rect().colliderect(self.player.get_rect().inflate(radius, radius)):
             self.player.gravity = -1.5
             if self.player.get_rect().left > shot.get_rect().right:
               self.player.direction.x = 1.4
             else:
               self.player.direction.x = -1.4
-          if self.player2.get_rect().colliderect(self.player2.get_rect().inflate(radius, radius)):
+          if shot.get_rect().colliderect(self.player2.get_rect().inflate(radius, radius)):
             self.player2.gravity = -1.5
             if self.player2.get_rect().left > shot.get_rect().right:
               self.player2.direction.x = 1.4
@@ -259,7 +259,8 @@ class Gamescreen (Screen):
       pass#ball = Ball(randint(20, 1260), randint(20, 700), randint(self.player.radius - 14, self.player.radius + 10), YELLOW, 0)
       #self.balls.append(ball)
       #self.qt.insert_obj(ball)
-    if pressed[K_g] and self.player.canshoot and self.player.nades > 0:
+    # Nades
+    if pressed[K_k] and self.player.canshoot and self.player.nades > 0:
       self.player.nades -= 1
       self.player.canshoot = False
       new = True
@@ -279,7 +280,7 @@ class Gamescreen (Screen):
         newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.player.shotdir, True, 11, self.player, GREEN, pygame.image.load('nade.png'), len(nades)+3)
         self.shots.append(newshot)
          #self.qt.insert_obj(newshot)if pressed[K_LSHIFT] and self.canshoot:
-    if pressed[K_k] and self.player2.canshoot and self.player2.nades > 0:
+    if pressed[K_f] and self.player2.canshoot and self.player2.nades > 0:
       self.player2.nades -= 1
       self.player2.canshoot = False
       new = True
@@ -290,7 +291,7 @@ class Gamescreen (Screen):
           shot.alive = True
           shot.player = self.player2
           new = False
-          pygame.time.set_timer(shot.explosion, 3000)
+          pygame.time.set_timer(shot.explosion, 2500)
       if new:
         nades = []
         for shot in self.shots:
