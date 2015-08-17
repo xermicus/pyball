@@ -362,26 +362,26 @@ class Gamescreen (Screen):
     self.player.move(self.player.direction, self.qt, self.player.gravity)
     self.player.collisions = self.qt.get_collisions(self.player)
     for colobj in self.player.collisions:
-      if oldpos[1] <= colobj.get_rect().top and not pressed[K_DOWN]:
+      if oldpos[1] <= colobj.get_rect().top and not pressed[K_DOWN] and not type(colobj) == Ball:
         if pressed[K_UP]:
           self.player.gravity = -2
         else:
           self.player.move(Vector2(0, self.player.direction.y * -1), self.qt, self.player.gravity)
           self.player.gravity = 0
-      elif oldpos[0]+self.player.get_rect().w <= colobj.get_rect().left  or oldpos[0] >= colobj.get_rect().right:
+      elif oldpos[0]+self.player.get_rect().w < colobj.get_rect().left  or oldpos[0] > colobj.get_rect().right and not type(colobj) == Ball:
         self.player.move(Vector2(self.player.direction.x * -1, 0), self.qt, self.player.gravity)
     # Player2
     oldpos = self.player2.get_rect().bottomleft
     self.player2.move(self.player2.direction, self.qt, self.player2.gravity)
     self.player2.collisions = self.qt.get_collisions(self.player2)
     for colobj in self.player2.collisions:
-      if oldpos[1] <= colobj.get_rect().top and not pressed[K_s]:
+      if oldpos[1] <= colobj.get_rect().top and not pressed[K_s] and not type(colobj) == Ball:
         if pressed[K_w]:
           self.player2.gravity = -2
         else:
           self.player2.move(Vector2(0, self.player2.direction.y * -1), self.qt, self.player2.gravity)
           self.player2.gravity = 0
-      elif oldpos[0]+self.player2.get_rect().w <= colobj.get_rect().left  or oldpos[0] >= colobj.get_rect().right:
+      elif oldpos[0]+self.player2.get_rect().w < colobj.get_rect().left  or oldpos[0] > colobj.get_rect().right and not type(colobj) == Ball:
         self.player2.move(Vector2(self.player2.direction.x * -1, 0), self.qt, self.player2.gravity)
 
     # die
