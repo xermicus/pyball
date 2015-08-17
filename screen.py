@@ -209,14 +209,23 @@ class Gamescreen (Screen):
 
       for shot in self.shots:
         if event.type == shot.explosion and shot.alive:
-          radius = 1
+          radius = 50
           ### FIX
+          posp = self.player.get_rect().center
+          poss = shot.get_rect().center
+          #if posp[0] < poss[0]:
           if self.player.get_rect().colliderect(self.player.get_rect().inflate(radius, radius)):
             self.player.gravity = -1.5
             if self.player.get_rect().left > shot.get_rect().right:
               self.player.direction.x = 1.4
             else:
               self.player.direction.x = -1.4
+          if self.player2.get_rect().colliderect(self.player2.get_rect().inflate(radius, radius)):
+            self.player2.gravity = -1.5
+            if self.player2.get_rect().left > shot.get_rect().right:
+              self.player2.direction.x = 1.4
+            else:
+              self.player2.direction.x = -1.4
           shot.explode = True
 
 
@@ -263,7 +272,31 @@ class Gamescreen (Screen):
           new = False
           pygame.time.set_timer(shot.explosion, 3000)
       if new:
-        newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.player.shotdir, True, 11, self.player, GREEN, pygame.image.load('nade.png'), len(self.shots)+3)
+        nades = []
+        for shot in self.shots:
+          if shot.tex:
+            nades.append(shot)
+        newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.player.shotdir, True, 11, self.player, GREEN, pygame.image.load('nade.png'), len(nades)+3)
+        self.shots.append(newshot)
+         #self.qt.insert_obj(newshot)if pressed[K_LSHIFT] and self.canshoot:
+    if pressed[K_k] and self.player2.canshoot and self.player2.nades > 0:
+      self.player2.nades -= 1
+      self.player2.canshoot = False
+      new = True
+      for shot in self.shots:
+        if not shot.alive and shot.tex:
+          shot.position = Vector2(self.player2.get_postuple())
+          shot.direction = DOWN
+          shot.alive = True
+          shot.player = self.player2
+          new = False
+          pygame.time.set_timer(shot.explosion, 3000)
+      if new:
+        nades = []
+        for shot in self.shots:
+          if shot.tex:
+            nades.append(shot)
+        newshot = Shot(Vector2(self.player2.get_postuple()), self.player2.get_rect(), self.player2.shotdir, True, 11, self.player2, GREEN, pygame.image.load('nade.png'), len(nades)+3)
         self.shots.append(newshot)
          #self.qt.insert_obj(newshot)if pressed[K_LSHIFT] and self.canshoot:
 
@@ -273,7 +306,7 @@ class Gamescreen (Screen):
       self.player.canshoot = False
       new = True
       for shot in self.shots:
-        if not shot.alive:
+        if not shot.alive and not shot.tex:
           shot.position = Vector2(self.player.get_postuple())
           shot.direction = self.player.shotdir
           shot.alive = True
@@ -288,7 +321,7 @@ class Gamescreen (Screen):
       self.player2.canshoot = False
       new = True
       for shot in self.shots:
-        if not shot.alive:
+        if not shot.alive and not shot.tex:
           shot.position = Vector2(self.player2.get_postuple())
           shot.direction = self.player2.shotdir
           shot.alive = True
