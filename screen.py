@@ -351,7 +351,7 @@ class Gamescreen (Screen):
       self.player2.direction.x -= 0.04
       if self.player2.direction.x < 0:
         self.player2.direction.x = 0
-    elif self.player2.direction.x >= -1 and self.player2.direction.x <= 0:
+    elif self.player2.direction.x >= -1.5 and self.player2.direction.x <= 0:
       self.player2.direction.x += 0.04
     if self.player2.direction.x > -0.3 and self.player2.direction.x < 0.3:
         self.player2.acclock = False
