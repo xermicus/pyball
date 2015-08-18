@@ -1,7 +1,7 @@
 # TODO
 # - Second player
 # - Sounds
- # - Game score
+# - Game score
 
 
 import pygame, sys

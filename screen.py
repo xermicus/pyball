@@ -180,13 +180,7 @@ class Gamescreen (Screen):
     self.qt.insert_obj(self.player2)
     pygame.time.set_timer(self.player2.shotevent, self.sps)
 
-  def update(self):
-    if not self.hasinput:
-      return
-
-    # Handle the Input
-    pressed = pygame.key.get_pressed()
-    # KEYUP input
+  def process_events(self):
     for event in pygame.event.get():
       if (event.type == KEYUP and event.key == K_ESCAPE):
         self.manager.blend_in(self.manager.screens[1])
@@ -209,7 +203,7 @@ class Gamescreen (Screen):
 
       for shot in self.shots:
         if event.type == shot.explosion and shot.alive:
-          radius = 150
+          radius = 200
           ### FIX
           posp = self.player.get_rect().center
           poss = shot.get_rect().center
@@ -228,8 +222,8 @@ class Gamescreen (Screen):
               self.player2.direction.x = -1.4
           shot.explode = True
 
-
-    # PRESSED input
+  def process_pressedinput(self):
+    pressed = pygame.key.get_pressed()
     if pressed[K_LEFT]:
       if not self.player.acclock:
         self.player.direction.x = -1
@@ -302,7 +296,8 @@ class Gamescreen (Screen):
          #self.qt.insert_obj(newshot)if pressed[K_LSHIFT] and self.canshoot:
 
 
-    # shoot
+  def process_components(self):
+    pressed = pygame.key.get_pressed()
     if pressed[K_COMMA] and self.player.canshoot:
       self.player.canshoot = False
       new = True
@@ -356,34 +351,6 @@ class Gamescreen (Screen):
     if self.player2.direction.x > -0.3 and self.player2.direction.x < 0.3:
         self.player2.acclock = False
 
-
-    # Level Collision
-    oldpos = self.player.get_rect().bottomleft
-    self.player.move(self.player.direction, self.qt, self.player.gravity)
-    self.player.collisions = self.qt.get_collisions(self.player)
-    for colobj in self.player.collisions:
-      if oldpos[1] <= colobj.get_rect().top and not pressed[K_DOWN] and not type(colobj) == Ball:
-        if pressed[K_UP]:
-          self.player.gravity = -2
-        else:
-          self.player.move(Vector2(0, self.player.direction.y * -1), self.qt, self.player.gravity)
-          self.player.gravity = 0
-      elif oldpos[0]+self.player.get_rect().w < colobj.get_rect().left  or oldpos[0] > colobj.get_rect().right and not type(colobj) == Ball:
-        self.player.move(Vector2(self.player.direction.x * -1, 0), self.qt, self.player.gravity)
-    # Player2
-    oldpos = self.player2.get_rect().bottomleft
-    self.player2.move(self.player2.direction, self.qt, self.player2.gravity)
-    self.player2.collisions = self.qt.get_collisions(self.player2)
-    for colobj in self.player2.collisions:
-      if oldpos[1] <= colobj.get_rect().top and not pressed[K_s] and not type(colobj) == Ball:
-        if pressed[K_w]:
-          self.player2.gravity = -2
-        else:
-          self.player2.move(Vector2(0, self.player2.direction.y * -1), self.qt, self.player2.gravity)
-          self.player2.gravity = 0
-      elif oldpos[0]+self.player2.get_rect().w < colobj.get_rect().left  or oldpos[0] > colobj.get_rect().right and not type(colobj) == Ball:
-        self.player2.move(Vector2(self.player2.direction.x * -1, 0), self.qt, self.player2.gravity)
-
     # die
     if self.player.position.y >= 2500:
       self.respawn_player()
@@ -433,6 +400,45 @@ class Gamescreen (Screen):
       self.winner = self.player
     elif self.score2 >= 10:
       self.winner = self.player2
+
+
+  def process_collisions(self):
+    pressed = pygame.key.get_pressed()
+    oldpos = self.player.get_rect().bottomleft
+    self.player.move(self.player.direction, self.qt, self.player.gravity)
+    self.player.collisions = self.qt.get_collisions(self.player)
+    for colobj in self.player.collisions:
+      if oldpos[1] <= colobj.get_rect().top and not pressed[K_DOWN] and not type(colobj) == Ball:
+        if pressed[K_UP]:
+          self.player.gravity = -2
+        else:
+          self.player.move(Vector2(0, self.player.direction.y * -1), self.qt, self.player.gravity)
+          self.player.gravity = 0
+      elif oldpos[0]+self.player.get_rect().w < colobj.get_rect().left  or oldpos[0] > colobj.get_rect().right and not type(colobj) == Ball:
+        self.player.move(Vector2(self.player.direction.x * -1, 0), self.qt, self.player.gravity)
+    # Player2
+    oldpos = self.player2.get_rect().bottomleft
+    self.player2.move(self.player2.direction, self.qt, self.player2.gravity)
+    self.player2.collisions = self.qt.get_collisions(self.player2)
+    for colobj in self.player2.collisions:
+      if oldpos[1] <= colobj.get_rect().top and not pressed[K_s] and not type(colobj) == Ball:
+        if pressed[K_w]:
+          self.player2.gravity = -2
+        else:
+          self.player2.move(Vector2(0, self.player2.direction.y * -1), self.qt, self.player2.gravity)
+          self.player2.gravity = 0
+      elif oldpos[0]+self.player2.get_rect().w < colobj.get_rect().left  or oldpos[0] > colobj.get_rect().right and not type(colobj) == Ball:
+        self.player2.move(Vector2(self.player2.direction.x * -1, 0), self.qt, self.player2.gravity)
+
+
+  def update(self):
+    if not self.hasinput:
+      return
+
+    self.process_events()
+    self.process_pressedinput()
+    self.process_components()
+    self.process_collisions()
 
 
   def draw(self, display, fontObj = []):
