@@ -1,7 +1,9 @@
 # TODO
-# - Second player
 # - Sounds
-# - Game score
+# - Don't use userevents
+# - Weapons / Ammo
+# - Improve nade (more effective / throw)
+# - Particles
 
 
 import pygame, sys
@@ -35,7 +37,7 @@ menuscreen = Menuscreen(manager)
 manager.add_screen(menuscreen)
 levelscreen = Levelscreen(manager)
 manager.add_screen(levelscreen)
-manager.blend_in(menuscreen)
+manager.blend_in(menuscreen, menuscreen)
 
 
 # main game loop

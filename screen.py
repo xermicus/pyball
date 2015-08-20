@@ -23,7 +23,7 @@ class Screenmanager (object):
     self.screens.remove(screen)
 
 
-  def blend_in(self, newscreen):
+  def blend_in(self, newscreen, oldscreen):
     if self.screens[0].visible:
       self.screens[0] = Gamescreen(self)
     if self.screens[1].visible:
@@ -32,6 +32,8 @@ class Screenmanager (object):
       self.screens[2] = Levelscreen(self)
       self.screens[0] = Gamescreen(self)
 
+    oldscreen.visible = False
+    oldscreen.hasinput = False
     newscreen.visible = True
     newscreen.hasinput = True
 
@@ -107,9 +109,9 @@ class Menuscreen (Screen):
             break
       if (event.type == KEYUP and event.key == K_SPACE):
         if self.b_game.focus:
-          self.manager.blend_in(self.manager.screens[0])
+          self.manager.blend_in(self.manager.screens[0], self)
         if self.b_level.focus:
-          self.manager.blend_in(self.manager.screens[2])
+          self.manager.blend_in(self.manager.screens[2], self)
         if self.b_quit.focus:
           pygame.quit()
           sys.exit()
@@ -183,7 +185,7 @@ class Gamescreen (Screen):
   def process_events(self):
     for event in pygame.event.get():
       if (event.type == KEYUP and event.key == K_ESCAPE):
-        self.manager.blend_in(self.manager.screens[1])
+        self.manager.blend_in(self.manager.screens[1], self)
       if event.type == KEYUP and (event.key == K_LEFT or event.key == K_RIGHT):
         if self.player.direction.x > 0:
           self.player.direction.x = 0.9
@@ -384,7 +386,7 @@ class Gamescreen (Screen):
             self.player2.direction.x = -0.9
             self.player2.acclock = True
         if self.player2.get_rect().colliderect(shot.get_rect()) and shot.player != self.player2:
-          shot.alive = False
+          shot.alive , self= False
           if shot.direction.x > 0:
             self.player2.direction.x = 1.5
             self.player2.acclock = True
@@ -394,7 +396,7 @@ class Gamescreen (Screen):
 
     if self.winner:
       pygame.time.wait(2500)
-      self.manager.blend_in(self.manager.screens[1])
+      self.manager.blend_in(self.manager.screens[1], self)
 
     if self.score1 >= 10:
       self.winner = self.player
@@ -523,6 +525,7 @@ class Levelscreen (Screen):
     self.buttons[0].focus = True
     self.blocks = []
 
+  def update(self):
     #pressed = pygame.key.get_pressed()
     for event in pygame.event.get():
       if (event.type == KEYUP and event.key == K_UP):
@@ -544,9 +547,9 @@ class Levelscreen (Screen):
               block.normalize()
             pickle.dump(self.blocks, f)
         if self.b_quit.focus:
-          self.manager.blend_in(self.manager.screens[1])
+          self.manager.blend_in(self.manager.screens[1], self)
       if (event.type == KEYUP and event.key == K_ESCAPE):
-        self.manager.blend_in(self.manager.screens[1])
+        self.manager.blend_in(self.manager.screens[1], self)
     # Mouse
       if (event.type == MOUSEBUTTONUP and event.button == 1):
         if self.pos_new1 == (0,0):
