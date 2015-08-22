@@ -14,7 +14,7 @@ class Ball (object):
   gravity = 0
   ammo = -1
   nades = 1
-  guntex = pygame.image.load('gun.png')
+  guntex = pygame.image.load('res/sprite/gun.png')
   guntex = pygame.transform.scale(guntex, (40,30))
   shotdir = LEFT
   canshoot = True
@@ -73,7 +73,7 @@ class Shot(object):
     self.tex = tex
     self.number = number
     self.explosion = pygame.USEREVENT+number
-    self.exptex = pygame.image.load('explosion.png')
+    self.exptex = pygame.image.load('res/sprite/explosion.png')
     self.last_ticks = pygame.time.get_ticks()
     self.expfps = 12
     self.exprounds = 0

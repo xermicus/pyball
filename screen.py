@@ -74,7 +74,7 @@ class Screen (object):
 
 
 class Menuscreen (Screen):
-  bg_img = pygame.image.load('bg_menu.png')
+  bg_img = pygame.image.load('res/sprite/bg_menu.png')
   b_game = Button("Play", (1280/2, 720/2 - 100))
   b_quit = Button("Quit", (1280/2, 720/2 + 100))
   b_level = Button("Leveleditor", (1280/2, 720/2))
@@ -90,6 +90,8 @@ class Menuscreen (Screen):
     for button in self.buttons:
       button.focus = False
     self.buttons[0].focus = True
+    pygame.mixer.init()
+    self.sound_button = pygame.mixer.Sound('res/sound/button_focus.ogg')
 
 
   def update(self):
@@ -98,12 +100,14 @@ class Menuscreen (Screen):
       if (event.type == KEYUP and event.key == K_UP):
         for i in range(0, len(self.buttons)):
           if self.buttons[i].focus and i > 0:
+            self.sound_button.play()
             self.buttons[i].focus = False
             self.buttons[i - 1].focus = True
             break
       if (event.type == KEYUP and event.key == K_DOWN):
         for i in range(0, len(self.buttons)):
           if self.buttons[i].focus and i < len(self.buttons) - 1:
+            self.sound_button.play()
             self.buttons[i].focus = False
             self.buttons[i + 1].focus = True
             break
@@ -136,7 +140,7 @@ class Menuscreen (Screen):
 
 
 class Gamescreen (Screen):
-  bg_img = pygame.image.load('bg_menu.png')
+  bg_img = pygame.image.load('res/sprite/bg_menu.png')
   level = []
   shots = []
   fontObj = pygame.font.Font('freesansbold.ttf', 35)
@@ -155,7 +159,7 @@ class Gamescreen (Screen):
     self.drawqt = False
     lvl = []
     self.level = []
-    with open("lvl.txt", 'rb') as f:
+    with open("res/lvl.bin", 'rb') as f:
       lvl = pickle.load(f)
     for block in lvl:
       self.level.append(Block(block))
@@ -273,7 +277,7 @@ class Gamescreen (Screen):
         for shot in self.shots:
           if shot.tex:
             nades.append(shot)
-        newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.player.shotdir, True, 11, self.player, GREEN, pygame.image.load('nade.png'), len(nades)+3)
+        newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.player.shotdir, True, 11, self.player, GREEN, pygame.image.load('res/sprite/nade.png'), len(nades)+3)
         self.shots.append(newshot)
          #self.qt.insert_obj(newshot)if pressed[K_LSHIFT] and self.canshoot:
     if pressed[K_f] and self.player2.canshoot and self.player2.nades > 0:
@@ -293,7 +297,7 @@ class Gamescreen (Screen):
         for shot in self.shots:
           if shot.tex:
             nades.append(shot)
-        newshot = Shot(Vector2(self.player2.get_postuple()), self.player2.get_rect(), self.player2.shotdir, True, 11, self.player2, GREEN, pygame.image.load('nade.png'), len(nades)+3)
+        newshot = Shot(Vector2(self.player2.get_postuple()), self.player2.get_rect(), self.player2.shotdir, True, 11, self.player2, GREEN, pygame.image.load('res/sprite/nade.png'), len(nades)+3)
         self.shots.append(newshot)
          #self.qt.insert_obj(newshot)if pressed[K_LSHIFT] and self.canshoot:
 
@@ -386,7 +390,7 @@ class Gamescreen (Screen):
             self.player2.direction.x = -0.9
             self.player2.acclock = True
         if self.player2.get_rect().colliderect(shot.get_rect()) and shot.player != self.player2:
-          shot.alive , self= False
+          shot.alive = False
           if shot.direction.x > 0:
             self.player2.direction.x = 1.5
             self.player2.acclock = True
@@ -506,7 +510,7 @@ class Gamescreen (Screen):
 
 
 class Levelscreen (Screen):
-  bg_img = pygame.image.load('bg_menu.png')
+  bg_img = pygame.image.load('res/sprite/bg_menu.png')
   b_safe = Button("Safe", (60, 30))
   b_quit = Button("Quit", (60, 70))
   buttons = []
@@ -524,6 +528,8 @@ class Levelscreen (Screen):
     self.buttons.append(self.b_quit)
     self.buttons[0].focus = True
     self.blocks = []
+    pygame.mixer.init()
+    self.sound_button = pygame.mixer.Sound('res/sound/button_focus.ogg')
 
   def update(self):
     #pressed = pygame.key.get_pressed()
@@ -531,18 +537,20 @@ class Levelscreen (Screen):
       if (event.type == KEYUP and event.key == K_UP):
         for i in range(0, len(self.buttons)):
           if self.buttons[i].focus and i > 0:
+            self.sound_button.play()
             self.buttons[i].focus = False
             self.buttons[i - 1].focus = True
             break
       if (event.type == KEYUP and event.key == K_DOWN):
         for i in range(0, len(self.buttons)):
           if self.buttons[i].focus and i < len(self.buttons) - 1:
+            self.sound_button.play()
             self.buttons[i].focus = False
             self.buttons[i + 1].focus = True
             break
       if (event.type == KEYUP and event.key == K_SPACE):
         if self.b_safe.focus:
-          with open("lvl.txt", 'wb') as f:
+          with open("res/lvl.bin", 'wb') as f:
             for block in self.blocks:
               block.normalize()
             pickle.dump(self.blocks, f)
