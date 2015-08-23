@@ -159,3 +159,10 @@ class Button (object):
       textObjRect.center = self.position
       display.blit(textObj, textObjRect)
 
+class Gun (object):
+  def __init__(self, tex, sound, mag, speed, name):
+    self.tex = tex
+    self.sound = sound
+    self.mag = mag
+    self.speed = speed
+    self.name = name

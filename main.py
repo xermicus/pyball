@@ -1,12 +1,13 @@
 # TODO
 # - Sounds
-# - Don't use userevents
+# - Don't use userevents,fix shot block collision
 # - Weapons (tex, speed, impact, sound), Ammo, HUD
 # - Improve nade (more effective / throw)
-# - Particles
+# - Particles?
 # - Improve leveleditor
 # - Improve physics
 # - Add network multiplayer
+# - Add player editor
 
 
 import pygame, sys
