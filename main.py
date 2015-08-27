@@ -1,10 +1,9 @@
 # TODO
-# - Sounds
-# - Don't use userevents,fix shot block collision
+# - Don't use userevents
 # - Weapons (tex, speed, impact, sound), Ammo, HUD
-# - Improve nade (more effective / throw)
+# - Improve nade (more effective, throw)
 # - Particles?
-# - Improve leveleditor
+# - Improve leveleditor (delete blocks, load levels)
 # - Improve physics
 # - Add network multiplayer
 # - Add player editor

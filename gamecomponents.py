@@ -16,11 +16,12 @@ class Ball (object):
   nades = 1
   guntex = pygame.image.load('res/sprite/gun.png')
   guntex = pygame.transform.scale(guntex, (40,30))
+  guntex = pygame.transform.flip(guntex, True, False)
   shotdir = LEFT
   canshoot = True
   acclock = False
 
-  def __init__ (self, posx, posy, radius = 0, color = YELLOW, speed = 0, rect = None, number = 1):
+  def __init__ (self, posx, posy, radius = 0, color = YELLOW, speed = 0, rect = None, number = 1, gun = None):
     self.position = Vector2(posx, posy)
     self.radius = radius
     self.speed = speed
@@ -32,6 +33,7 @@ class Ball (object):
       self.rect = rect
     self.number = number
     self.shotevent = pygame.USEREVENT+number
+    self.gun = gun
 
   def get_rect(self):
     return pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, self.radius * 2, self.radius * 2)
@@ -114,9 +116,10 @@ class Shot(object):
         self.alive = False
       collisions = qt.get_collisions(self)
       for colobj in collisions:
-        if oldpos[1] <= colobj.get_rect().top and (type(colobj) is Block):
+        if oldpos[1] <= colobj.get_rect().top and (type(colobj) is Block) and self.tex:
           self.position -= self.direction * self.speed
           self.direction = Vector2(0,0)
+
 
     elif self.alive:
       #qt.remove_obj(self)
@@ -126,6 +129,11 @@ class Shot(object):
       if not self.rect.colliderect(pygame.Rect(0,0,1280,720)):
         self.alive = False
       self.rect = pygame.Rect(self.position.x -10, self.position.y -10, 4, 4)
+      collisions = qt.get_collisions(self)
+      for colobj in collisions:
+        if (type(colobj) is Block):
+          self.alive = False
+
 
   def draw(self, display):
     if self.alive and self.tex:
@@ -160,9 +168,10 @@ class Button (object):
       display.blit(textObj, textObjRect)
 
 class Gun (object):
-  def __init__(self, tex, sound, mag, speed, name):
+  def __init__(self, tex, sound, mag, speed, spm, impact):
     self.tex = tex
     self.sound = sound
     self.mag = mag
     self.speed = speed
-    self.name = name
+    self.spm = spm
+    self.impact = impact

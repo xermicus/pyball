@@ -148,8 +148,11 @@ class Gamescreen (Screen):
 
 
   def __init__(self, manager):
-    self.player = Ball(randint(200, 1080), -50, 20, NAVYBLUE, 5, None, 1)
-    self.player2 = Ball(randint(200, 1080), -50, 20, RED, 5, None, 2)
+    pygame.mixer.init
+    self.guns = []
+    self.guns.append(Gun(pygame.transform.flip(pygame.transform.scale(pygame.image.load('/home/cyrill/Downloads/pyballguns/9mm.png'), (25,25)), True, False), pygame.mixer.Sound('res/sound/9mm.ogg'), 12, 5, 200, 2))
+    self.player = Ball(randint(200, 1080), -50, 20, NAVYBLUE, 5, None, 1, self.guns[0])
+    self.player2 = Ball(randint(200, 1080), -50, 20, RED, 5, None, 2, self.guns[0])
     self.player.direction = Vector2(0, 1)
     self.player2.direction = Vector2(0, 1)
     self.qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
@@ -210,7 +213,7 @@ class Gamescreen (Screen):
       for shot in self.shots:
         if event.type == shot.explosion and shot.alive:
           radius = 200
-          ### FIX
+          ### FIX (nade)
           posp = self.player.get_rect().center
           poss = shot.get_rect().center
           #if posp[0] < poss[0]:
@@ -313,9 +316,10 @@ class Gamescreen (Screen):
           shot.direction = self.player.shotdir
           shot.alive = True
           shot.player = self.player
+          shot.speed = self.player.gun.speed
           new = False
       if new:
-         newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.player.shotdir, True, 11, self.player)
+         newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.player.shotdir, True, self.player.gun.speed, self.player)
          self.shots.append(newshot)
          #self.qt.insert_obj(newshot)if pressed[K_LSHIFT] and self.canshoot:
     # Player2
@@ -328,9 +332,10 @@ class Gamescreen (Screen):
           shot.direction = self.player2.shotdir
           shot.alive = True
           shot.player = self.player2
+          shot.speed = self.player2.gun.speed
           new = False
       if new:
-         newshot = Shot(Vector2(self.player2.get_postuple()), self.player2.get_rect(), self.player2.shotdir, True, 11, self.player2)
+         newshot = Shot(Vector2(self.player2.get_postuple()), self.player2.get_rect(), self.player2.shotdir, True, self.player2.gun.speed, self.player2)
          self.shots.append(newshot)
          #self.qt.insert_obj(newshot)
 
@@ -339,22 +344,22 @@ class Gamescreen (Screen):
     self.player.gravity += 0.05
     self.player2.gravity += 0.05
     #offset
-    if self.player.direction.x <= 1.5 and self.player.direction.x >= 0:
+    if self.player.direction.x >= 0:
       self.player.direction.x -= 0.04
       if self.player.direction.x < 0:
         self.player.direction.x = 0
-    elif self.player.direction.x >= -1.5 and self.player.direction.x <= 0:
+    elif self.player.direction.x <= 0:
       self.player.direction.x += 0.04
-    if self.player.direction.x > -0.3 and self.player.direction.x < 0.3:
+    if self.player.direction.x > -0.2 and self.player.direction.x < 0.2:
         self.player.acclock = False
     # Player2
-    if self.player2.direction.x <= 1.5 and self.player2.direction.x >= 0:
+    if self.player2.direction.x >= 0:
       self.player2.direction.x -= 0.04
       if self.player2.direction.x < 0:
         self.player2.direction.x = 0
-    elif self.player2.direction.x >= -1.5 and self.player2.direction.x <= 0:
+    elif self.player2.direction.x <= 0:
       self.player2.direction.x += 0.04
-    if self.player2.direction.x > -0.3 and self.player2.direction.x < 0.3:
+    if self.player2.direction.x > -0.2 and self.player2.direction.x < 0.2:
         self.player2.acclock = False
 
     # die
@@ -376,10 +381,10 @@ class Gamescreen (Screen):
         if self.player.get_rect().colliderect(shot.get_rect()) and shot.player != self.player:
           shot.alive = False
           if shot.direction.x > 0:
-            self.player.direction.x = 1.5
+            self.player.direction.x = self.player2.gun.impact
             self.player.acclock = True
           else:
-            self.player.direction.x = -1.5
+            self.player.direction.x = -self.player2.gun.impact
             self.player.acclock = True
         #Player2
         if self.player2.get_rect().colliderect(shot.get_rect()) and shot.player == self.player2:
@@ -392,10 +397,10 @@ class Gamescreen (Screen):
         if self.player2.get_rect().colliderect(shot.get_rect()) and shot.player != self.player2:
           shot.alive = False
           if shot.direction.x > 0:
-            self.player2.direction.x = 1.5
+            self.player2.direction.x = self.player.gun.impact
             self.player2.acclock = True
           else:
-            self.player2.direction.x = -1.5
+            self.player2.direction.x = -self.player.gun.impact
             self.player2.acclock = True
 
     if self.winner:
@@ -465,13 +470,13 @@ class Gamescreen (Screen):
     pygame.draw.circle(display, self.player.color, self.player.get_postuple(), self.player.radius, 0)
     pygame.draw.circle(display, self.player2.color, self.player2.get_postuple(), self.player2.radius, 0)
     if self.player.shotdir == LEFT:
-      display.blit(self.player.guntex, (self.player.get_rect().left - 20, self.player.get_rect().top))
+      display.blit(self.player.gun.tex, (self.player.get_rect().left - 20, self.player.get_rect().top))
     else:
-      display.blit(pygame.transform.flip(self.player.guntex, True, False), (self.player.get_rect().left + 15, self.player.get_rect().top))
+      display.blit(pygame.transform.flip(self.player.gun.tex, True, False), (self.player.get_rect().left + 15, self.player.get_rect().top))
     if self.player2.shotdir == LEFT:
-      display.blit(self.player2.guntex, (self.player2.get_rect().left - 20, self.player2.get_rect().top))
+      display.blit(self.player2.gun.tex, (self.player2.get_rect().left - 20, self.player2.get_rect().top))
     else:
-      display.blit(pygame.transform.flip(self.player2.guntex, True, False), (self.player2.get_rect().left + 15, self.player2.get_rect().top))
+      display.blit(pygame.transform.flip(self.player2.gun.tex, True, False), (self.player2.get_rect().left + 15, self.player2.get_rect().top))
 
 
     for ball in self.balls:
