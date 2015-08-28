@@ -144,15 +144,14 @@ class Gamescreen (Screen):
   level = []
   shots = []
   fontObj = pygame.font.Font('freesansbold.ttf', 35)
-  sps = 250
 
 
   def __init__(self, manager):
     pygame.mixer.init
     self.guns = []
     self.guns.append(Gun(pygame.transform.flip(pygame.transform.scale(pygame.image.load('/home/cyrill/Downloads/pyballguns/9mm.png'), (25,25)), True, False), pygame.mixer.Sound('res/sound/9mm.ogg'), 12, 5, 200, 2))
-    self.player = Ball(randint(200, 1080), -50, 20, NAVYBLUE, 5, None, 1, self.guns[0])
-    self.player2 = Ball(randint(200, 1080), -50, 20, RED, 5, None, 2, self.guns[0])
+    self.player = Ball(randint(200, 1080), -50, 20, NAVYBLUE, 5, None, self.guns[0])
+    self.player2 = Ball(randint(200, 1080), -50, 20, RED, 5, None, self.guns[0])
     self.player.direction = Vector2(0, 1)
     self.player2.direction = Vector2(0, 1)
     self.qt = Quadtree(0, 5, 5, BLACK, Rect((0,0), (1280,720)), True)
@@ -167,27 +166,27 @@ class Gamescreen (Screen):
     for block in lvl:
       self.level.append(Block(block))
       self.qt.insert_obj(Block(block))
-    pygame.time.set_timer(self.player.shotevent, self.sps)
-    pygame.time.set_timer(self.player2.shotevent, self.sps)
     self.score1 = 0
     self.score2 = 0
     self.winner = None
+    self.last_ticks = pygame.time.get_ticks()
+
 
   def respawn_player(self):
     self.score2 += 1
     self.qt.remove_obj(self.player)
-    self.player = Ball(randint(200, 1080), -50, 20, self.player.color, 5, None, self.player.number)
+    self.player = Ball(randint(200, 1080), -50, 20, self.player.color, 5, None, self.guns[0])
     self.player.direction = Vector2(0, 1)
     self.qt.insert_obj(self.player)
-    pygame.time.set_timer(self.player.shotevent, self.sps)
+    self.player.last_ticks = pygame.time.get_ticks()
 
   def respawn_player2(self):
     self.score1 += 1
     self.qt.remove_obj(self.player2)
-    self.player2 = Ball(randint(200, 1080), -50, 20, self.player2.color, 5, None, self.player2.number)
+    self.player2 = Ball(randint(200, 1080), -50, 20, self.player2.color, 5, None, self.guns[0])
     self.player2.direction = Vector2(0, 1)
     self.qt.insert_obj(self.player2)
-    pygame.time.set_timer(self.player2.shotevent, self.sps)
+    self.player.last_ticks = pygame.time.get_ticks()
 
   def process_events(self):
     for event in pygame.event.get():
@@ -203,12 +202,6 @@ class Gamescreen (Screen):
           self.player2.direction.x = 0.9
         else:
           self.player2.direction.x = -0.9
-      if event.type == self.player.shotevent:
-        self.player.canshoot = True
-      if event.type == self.player2.shotevent:
-        self.player2.canshoot = True
-      if event.type == self.player2.shotevent:
-        self.player2.canshoot = True
 
       for shot in self.shots:
         if event.type == shot.explosion and shot.alive:
@@ -411,6 +404,14 @@ class Gamescreen (Screen):
       self.winner = self.player
     elif self.score2 >= 10:
       self.winner = self.player2
+
+    ticks = pygame.time.get_ticks()
+    if ticks > self.player.last_ticks + 1000 / (self.player.gun.spm / 60) and not self.player.canshoot:
+      self.player.canshoot = True
+      self.player.last_ticks = ticks
+    if ticks > self.player2.last_ticks + 1000 / (self.player2.gun.spm / 60) and not self.player2.canshoot:
+      self.player2.canshoot = True
+      self.player2.last_ticks = ticks
 
 
   def process_collisions(self):

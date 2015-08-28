@@ -13,7 +13,7 @@ class Ball (object):
   inblock = True
   gravity = 0
   ammo = -1
-  nades = 1
+  nades = 10
   guntex = pygame.image.load('res/sprite/gun.png')
   guntex = pygame.transform.scale(guntex, (40,30))
   guntex = pygame.transform.flip(guntex, True, False)
@@ -21,7 +21,7 @@ class Ball (object):
   canshoot = True
   acclock = False
 
-  def __init__ (self, posx, posy, radius = 0, color = YELLOW, speed = 0, rect = None, number = 1, gun = None):
+  def __init__ (self, posx, posy, radius = 0, color = YELLOW, speed = 0, rect = None, gun = None):
     self.position = Vector2(posx, posy)
     self.radius = radius
     self.speed = speed
@@ -31,8 +31,7 @@ class Ball (object):
     self.alive = True
     if rect:
       self.rect = rect
-    self.number = number
-    self.shotevent = pygame.USEREVENT+number
+    self.last_ticks = pygame.time.get_ticks()
     self.gun = gun
 
   def get_rect(self):
@@ -64,7 +63,7 @@ class Block(object):
 
 
 class Shot(object):
-  def __init__ (self, position, rect, direction, alive, speed, player, color = BLACK, tex = None, number = 0):
+  def __init__ (self, position, rect, direction, alive, speed, player, color = BLACK, tex = None):
     self.rect = rect
     self.color = color
     self.direction = direction
@@ -74,7 +73,7 @@ class Shot(object):
     self.player = player
     self.tex = tex
     self.number = number
-    self.explosion = pygame.USEREVENT+number
+    #self.explosion = pygame.USEREVENT+number
     self.exptex = pygame.image.load('res/sprite/explosion.png')
     self.last_ticks = pygame.time.get_ticks()
     self.expfps = 12
