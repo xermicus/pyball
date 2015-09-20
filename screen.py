@@ -204,7 +204,8 @@ class Gamescreen (Screen):
           self.player2.direction.x = -0.9
 
       for shot in self.shots:
-        if event.type == shot.explosion and shot.alive:
+        #if event.type == shot.explosion and shot.alive:
+        if shot.explode and shot.alive:
           radius = 200
           ### FIX (nade)
           posp = self.player.get_rect().center
@@ -267,13 +268,13 @@ class Gamescreen (Screen):
           shot.alive = True
           shot.player = self.player
           new = False
-          pygame.time.set_timer(shot.explosion, 3000)
+          #pygame.time.set_timer(shot.explosion, 3000)
       if new:
         nades = []
         for shot in self.shots:
           if shot.tex:
             nades.append(shot)
-        newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.player.shotdir, True, 11, self.player, GREEN, pygame.image.load('res/sprite/nade.png'), len(nades)+3)
+        newshot = Shot(Vector2(self.player.get_postuple()), self.player.get_rect(), self.player.shotdir, True, 11, self.player, GREEN, pygame.image.load('res/sprite/nade.png'), 2500)
         self.shots.append(newshot)
          #self.qt.insert_obj(newshot)if pressed[K_LSHIFT] and self.canshoot:
     if pressed[K_f] and self.player2.canshoot and self.player2.nades > 0:
@@ -287,13 +288,13 @@ class Gamescreen (Screen):
           shot.alive = True
           shot.player = self.player2
           new = False
-          pygame.time.set_timer(shot.explosion, 2500)
+          #pygame.time.set_timer(shot.explosion, 2500)
       if new:
         nades = []
         for shot in self.shots:
           if shot.tex:
             nades.append(shot)
-        newshot = Shot(Vector2(self.player2.get_postuple()), self.player2.get_rect(), self.player2.shotdir, True, 11, self.player2, GREEN, pygame.image.load('res/sprite/nade.png'), len(nades)+3)
+        newshot = Shot(Vector2(self.player2.get_postuple()), self.player2.get_rect(), self.player2.shotdir, True, 11, self.player2, GREEN, pygame.image.load('res/sprite/nade.png'), 2500)
         self.shots.append(newshot)
          #self.qt.insert_obj(newshot)if pressed[K_LSHIFT] and self.canshoot:
 

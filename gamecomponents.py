@@ -63,7 +63,7 @@ class Block(object):
 
 
 class Shot(object):
-  def __init__ (self, position, rect, direction, alive, speed, player, color = BLACK, tex = None):
+  def __init__ (self, position, rect, direction, alive, speed, player, color = BLACK, tex = None, exptime = 0):
     self.rect = rect
     self.color = color
     self.direction = direction
@@ -72,7 +72,7 @@ class Shot(object):
     self.position = Vector2(rect.center)
     self.player = player
     self.tex = tex
-    self.number = number
+    #self.number = number
     #self.explosion = pygame.USEREVENT+number
     self.exptex = pygame.image.load('res/sprite/explosion.png')
     self.last_ticks = pygame.time.get_ticks()
@@ -84,7 +84,10 @@ class Shot(object):
       self.tex = pygame.transform.scale(self.tex, (25,25))
       self.direction = Vector2(0,1)
       self.speed = 0
-      pygame.time.set_timer(self.explosion, 3000)
+      #pygame.time.set_timer(self.explosion, 3000)
+      if exptime > 0:
+        self.exptime = exptime
+        self.exptimeinit = pygame.time.get_ticks()
 
     self.exprects = []
     for i in range(0,4):
@@ -104,6 +107,10 @@ class Shot(object):
           self.exprounds = 0
           self.explode = False
           self.alive = False
+
+      if pygame.time.get_ticks() > self.exptimeinit + self.exptime:
+        self.explode = True
+
 
       #collision
       oldpos = self.get_rect().bottomleft
