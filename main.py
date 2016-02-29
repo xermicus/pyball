@@ -1,5 +1,4 @@
 # TODO
-# - Don't use userevents
 # - Weapons (tex, speed, impact, sound), Ammo, HUD
 # - Improve nade (more effective, throw)
 # - Particles?
