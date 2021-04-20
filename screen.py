@@ -149,7 +149,7 @@ class Gamescreen (Screen):
   def __init__(self, manager):
     pygame.mixer.init
     self.guns = []
-    self.guns.append(Gun(pygame.transform.flip(pygame.transform.scale(pygame.image.load('/home/cyrill/Downloads/pyballguns/9mm.png'), (25,25)), True, False), pygame.mixer.Sound('res/sound/9mm.ogg'), 12, 15, 200, 2))
+    self.guns.append(Gun(pygame.transform.flip(pygame.transform.scale(pygame.image.load('res/sprite/gun.png'), (25,25)), True, False), pygame.mixer.Sound('res/sound/9mm.ogg'), 12, 15, 200, 2))
     self.player = Ball(randint(200, 1080), -50, 20, NAVYBLUE, 5, None, self.guns[0])
     self.player2 = Ball(randint(200, 1080), -50, 20, RED, 5, None, self.guns[0])
     self.player.direction = Vector2(0, 1)
